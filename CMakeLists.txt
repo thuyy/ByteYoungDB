@@ -7,13 +7,11 @@ set(CMAKE_CXX_FLAGS "-Wall")                    # 开启所有警告
 set(CMAKE_CXX_FLAGS_DEBUG "-O0" )               # 调试包不优化
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG " )   # release包优化
 
-include(GNUInstallDirs)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
-    ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_INSTALL_PREFIX "install")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
-    ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+    ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
-    ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+    ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(${CMAKE_SOURCE_DIR}/sql-parser/include)
 
