@@ -17,4 +17,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
 
 include_directories(${CMAKE_SOURCE_DIR}/sql-parser/include)
 
-add_subdirectory(src)
+add_subdirectory(src/main)
+add_subdirectory(src/sql-parser-test)

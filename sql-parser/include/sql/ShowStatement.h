@@ -2,6 +2,7 @@
 #define SQLPARSER_SHOW_STATEMENT_H
 
 #include "SQLStatement.h"
+#include "SQLParserResult.h"
 
 // Note: Implementations of constructors and destructors can be found in statements.cpp.
 namespace hsql {
