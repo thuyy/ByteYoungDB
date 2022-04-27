@@ -2,8 +2,8 @@
 #include "SQLParserResult.h"
 #include "util/sqlhelper.h"
 
-#include <iostream>
 #include <stdlib.h>
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -26,9 +26,7 @@ int main(int argc, char* argv[]) {
     return 0;
   } else {
     fprintf(stderr, "Given string is not a valid SQL query.\n");
-    fprintf(stderr, "%s (L%d:%d)\n",
-            result.errorMsg(),
-            result.errorLine(),
+    fprintf(stderr, "%s (L%d:%d)\n", result.errorMsg(), result.errorLine(),
             result.errorColumn());
     return -1;
   }

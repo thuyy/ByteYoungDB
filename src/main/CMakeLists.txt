@@ -1,5 +1,14 @@
 set(BYTE_YOUNG_SRC
-  main.cc
+  main.cpp
+  ddl.cpp
+  executor.cpp
+  index.cpp
+  metadata.cpp
+  optimizer.cpp
+  parser.cpp
+  storage.cpp
+  trx.cpp
+  util.cpp
 )
 
 add_executable(byte_young
