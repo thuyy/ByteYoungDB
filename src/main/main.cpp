@@ -13,7 +13,6 @@ static bool ExecStmt(std::string stmt) {
     return true;
   }
 
-
   return false;
 }
 

@@ -1,4 +1,6 @@
 #pragma once
+#include "metadata.h"
+
 #include "SQLParser.h"
 #include "SQLParserResult.h"
 #include "util/sqlhelper.h"
@@ -20,23 +22,27 @@ class Parser {
 
   bool checkMeta(const SQLStatement* stmt);
 
-  bool checkSelectStmt(const SelectStatement* select_stmt);
+  bool checkSelectStmt(const SelectStatement* stmt);
 
-  bool checkInsertStmt(const InsertStatement* insert_stmt);
+  bool checkInsertStmt(const InsertStatement* stmt);
 
-  bool checkUpdateStmt(const UpdateStatement* update_stmt);
+  bool checkUpdateStmt(const UpdateStatement* stmt);
 
-  bool checkDeleteStmt(const DeleteStatement* delete_stmt);
+  bool checkDeleteStmt(const DeleteStatement* stmt);
 
-  bool checkCreateStmt(const CreateStatement* create_stmt);
+  bool checkCreateStmt(const CreateStatement* stmt);
 
-  bool checkDropStmt(const DropStatement* drop_stmt);
+  bool checkDropStmt(const DropStatement* stmt);
 
   bool checkCreateIndexStmt(const CreateStatement* stmt);
 
   bool checkCreateTableStmt(const CreateStatement* stmt);
 
-  bool checkTable(TableRef* table);
+  Table* getTable(TableRef* table_ref);
+
+  bool checkColumn(Table* table, char* col_name);
+
+  bool checkExpr(Table* table, Expr* expr);
 
   SQLParserResult* result_;
 };

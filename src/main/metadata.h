@@ -66,7 +66,6 @@ class MetaData {
   bool dropTable(char* schema, char* name);
   void dropSchema(char* schema);
 
-
   bool findSchema(char* schema);
   Table* getTable(char* schema, char* name);
   Index* getIndex(char* schema, char* name, char* index_name);
