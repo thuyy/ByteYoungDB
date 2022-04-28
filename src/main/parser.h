@@ -13,6 +13,8 @@ class Parser {
 
   bool parseStatement(std::string query);
 
+  SQLParserResult* getResult() { return result_; }
+
  private:
   bool checkStmtsMeta();
 

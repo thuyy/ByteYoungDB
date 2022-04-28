@@ -1,10 +1,21 @@
-#include "SQLParser.h"
-#include "SQLParserResult.h"
-#include "util/sqlhelper.h"
+#include "parser.h"
 
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+
+using namespace bydb;
+using namespace hsql;
+
+static bool ExecStmt(std::string stmt) {
+  Parser parser;
+  if (parser.parseStatement(stmt)) {
+    return true;
+  }
+
+
+  return false;
+}
 
 int main(int argc, char* argv[]) {
   std::cout << "# Welcome to ByteYoung DB!!!" << std::endl;
@@ -16,6 +27,10 @@ int main(int argc, char* argv[]) {
     std::getline(std::cin, cmd);
     if (cmd == "exit") {
       break;
+    }
+
+    if (ExecStmt(cmd)) {
+      std::cout << "# ERROR: Failed to execute '" << cmd << "'" << std::endl;
     }
   }
 

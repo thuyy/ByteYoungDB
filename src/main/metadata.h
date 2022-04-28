@@ -3,6 +3,7 @@
 #include "sql/CreateStatement.h"
 #include "sql/Table.h"
 
+#include <string.h>
 #include <unordered_map>
 
 using namespace hsql;
@@ -62,9 +63,13 @@ class MetaData {
   ~MetaData(){};
 
   bool insertTable(Table* table);
-  bool dropTable(TableName& table_name);
-  Table* getTable(TableName& table_name);
+  bool dropTable(char* schema, char* name);
   void dropSchema(char* schema);
+
+
+  bool findSchema(char* schema);
+  Table* getTable(char* schema, char* name);
+  Index* getIndex(char* schema, char* name, char* index_name);
 
  private:
   std::unordered_map<TableName, Table*> table_map_;
