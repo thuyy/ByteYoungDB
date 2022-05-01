@@ -192,8 +192,7 @@ bool Parser::checkDeleteStmt(const DeleteStatement* stmt) {
   Table* table = g_meta_data.getTable(stmt->schema, stmt->tableName);
   if (table == nullptr) {
     std::cout << "# ERROR: Can not find table "
-              << TableNameToString(table->name)
-              << std::endl;
+              << TableNameToString(table->name) << std::endl;
     return true;
   }
 
