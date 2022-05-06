@@ -1,3 +1,5 @@
+#include "executor.h"
+#include "optimizer.h"
 #include "parser.h"
 
 #include <stdlib.h>
@@ -11,6 +13,23 @@ static bool ExecStmt(std::string stmt) {
   Parser parser;
   if (parser.parseStatement(stmt)) {
     return true;
+  }
+
+  SQLParserResult* result = parser.getResult();
+  Optimizer optimizer;
+
+  for (size_t i = 0; i < result->size(); ++i) {
+    const SQLStatement* stmt = result->getStatement(i);
+    Plan* plan = optimizer.createPlanTree(stmt);
+    if (plan == nullptr) {
+      return true;
+    }
+
+    Executor executor(plan);
+    executor.init();
+    if (executor.exec()) {
+      return true;
+    }
   }
 
   return false;
