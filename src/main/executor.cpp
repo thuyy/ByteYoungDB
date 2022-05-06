@@ -9,13 +9,9 @@ using namespace hsql;
 
 namespace bydb {
 
-void Executor::init() {
-  opTree_ = generateOperator(planTree_);
-}
+void Executor::init() { opTree_ = generateOperator(planTree_); }
 
-bool Executor::exec() {
-  return opTree_->exec();
-}
+bool Executor::exec() { return opTree_->exec(); }
 
 BaseOperator* Executor::generateOperator(Plan* plan) {
   BaseOperator* op = nullptr;
@@ -90,8 +86,8 @@ bool CreateOperator::exec() {
         return false;
       } else {
         std::cout << "# ERROR: Table "
-                  //<< TableNameTostring(create_plan->schema,
-                  //                     create_plan->tableName)
+                  << TableNameToString(create_plan->schema,
+                                       create_plan->tableName)
                   << " already existed." << std::endl;
         return true;
       }
@@ -105,8 +101,8 @@ bool CreateOperator::exec() {
         g_meta_data.getTable(create_plan->schema, create_plan->tableName);
     if (table == nullptr) {
       std::cout << "# ERROR: Table "
-                //<< TableNameTostring(create_plan->schema,
-                //                     create_plan->tableName)
+                << TableNameToString(create_plan->schema,
+                                     create_plan->tableName)
                 << " did not exist." << std::endl;
       return true;
     }
@@ -134,25 +130,15 @@ bool CreateOperator::exec() {
   return false;
 }
 
-bool DropOperator::exec() {
-  return false;
-}
+bool DropOperator::exec() { return false; }
 
-bool InsertOperator::exec() {
-  return false;
-}
+bool InsertOperator::exec() { return false; }
 
-bool UpdateOperator::exec() {
-  return false;
-}
+bool UpdateOperator::exec() { return false; }
 
-bool DeleteOperator::exec() {
-  return false;
-}
+bool DeleteOperator::exec() { return false; }
 
-bool TrxOperator::exec() {
-  return false;
-}
+bool TrxOperator::exec() { return false; }
 
 bool ShowOperator::exec() {
   ShowPlan* show_plan = static_cast<ShowPlan*>(plan_);
@@ -160,24 +146,24 @@ bool ShowOperator::exec() {
     std::vector<Table*> tables;
     g_meta_data.getAllTables(&tables);
 
-    std::cout << "# Table List:" << std::endl;
+    std::cout << "Table List:" << std::endl;
     for (auto table : tables) {
-      std::cout << "# " << TableNameToString(table->schema(),
-                                             table->name())
+      std::cout << TableNameToString(table->schema(), table->name())
                 << std::endl;
     }
   } else if (show_plan->type == kShowColumns) {
     Table* table = g_meta_data.getTable(show_plan->schema, show_plan->name);
     if (table == nullptr) {
       std::cout << "# ERROR: Failed to find table "
-                //<< TableNameTostring(show_plan->schema, show_plan->name)
+                << TableNameToString(show_plan->schema, show_plan->name)
                 << std::endl;
       return true;
     }
-    std::cout << "# " //<< TableNameTostring(show_plan->schema, show_plan->name)
+    std::cout << TableNameToString(show_plan->schema, show_plan->name)
               << " column list:" << std::endl;
     for (auto col_def : *table->columns()) {
-      std::cout << "# " << col_def->name << std::endl;
+      std::cout << col_def->name << "\t"
+                << DataTypeToString(col_def->type.data_type) << std::endl;
     }
   } else {
     std::cout << "# ERROR: Invalid 'Show' statement." << std::endl;
@@ -187,32 +173,18 @@ bool ShowOperator::exec() {
   return false;
 }
 
-bool SelectOperator::exec() {
-  return false;
-}
+bool SelectOperator::exec() { return false; }
 
-bool IndexScanOperator::exec() {
-  return false;
-}
+bool IndexScanOperator::exec() { return false; }
 
-bool SeqScanOperator::exec() {
-  return false;
-}
+bool SeqScanOperator::exec() { return false; }
 
-bool FilterOperator::exec() {
-  return false;
-}
+bool FilterOperator::exec() { return false; }
 
-bool SortOperator::exec() {
-  return false;
-}
+bool SortOperator::exec() { return false; }
 
-bool LimitOperator::exec() {
-  return false;
-}
+bool LimitOperator::exec() { return false; }
 
-bool ProjectionOperator::exec() {
-  return false;
-}
+bool ProjectionOperator::exec() { return false; }
 
 }  // namespace bydb

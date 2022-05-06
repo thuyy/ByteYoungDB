@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
 
   std::string cmd;
   while (true) {
+    std::cout << ">> ";
     std::getline(std::cin, cmd);
     if (cmd == "exit") {
       break;

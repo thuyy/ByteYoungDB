@@ -1,3 +1,5 @@
+#pragma once
+
 #include "optimizer.h"
 
 namespace bydb {
@@ -69,7 +71,8 @@ class SelectOperator : public BaseOperator {
 
 class IndexScanOperator : public BaseOperator {
  public:
-  IndexScanOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
+  IndexScanOperator(Plan* plan, BaseOperator* next)
+      : BaseOperator(plan, next) {}
   ~IndexScanOperator() {}
   bool exec() override;
 };
@@ -104,7 +107,8 @@ class LimitOperator : public BaseOperator {
 
 class ProjectionOperator : public BaseOperator {
  public:
-  ProjectionOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
+  ProjectionOperator(Plan* plan, BaseOperator* next)
+      : BaseOperator(plan, next) {}
   ~ProjectionOperator() {}
   bool exec() override;
 };

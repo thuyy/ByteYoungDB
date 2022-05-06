@@ -9,6 +9,29 @@ namespace bydb {
 
 MetaData g_meta_data;
 
+Table::Table(char* schema, char* name,
+             std::vector<ColumnDefinition*>* columns) {
+  schema_ = strdup(schema);
+  name_ = strdup(name);
+  for (auto col_old : *columns) {
+    std::vector<ConstraintType>* column_constraints =
+        new std::vector<ConstraintType>();
+    *column_constraints = *col_old->column_constraints;
+    ColumnDefinition* col = new ColumnDefinition(
+        strdup(col_old->name), col_old->type, column_constraints);
+    col->nullable = col_old->nullable;
+    columns_.push_back(col);
+  }
+}
+
+Table::~Table() {
+  free(schema_);
+  free(name_);
+  for (auto col : columns_) {
+    delete col;
+  }
+}
+
 ColumnDefinition* Table::getColumn(char* name) {
   if (name == nullptr || strlen(name) == 0) {
     return nullptr;
@@ -39,7 +62,8 @@ Index* Table::getIndex(char* name) {
 
 bool MetaData::insertTable(Table* table) {
   if (getTable(table->schema(), table->name()) != nullptr) {
-    std::cout << "# ERROR: Table " << TableNameToString(table->schema(), table->name())
+    std::cout << "# ERROR: Table "
+              << TableNameToString(table->schema(), table->name())
               << " already existed!" << std::endl;
     return false;
   } else {

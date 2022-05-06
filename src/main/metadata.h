@@ -46,10 +46,8 @@ struct Index {
 
 class Table {
  public:
-  Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns)
-      : schema_(schema), name_(name) {
-    columns_ = *columns;
-  }
+  Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns);
+  ~Table();
 
   ColumnDefinition* getColumn(char* name);
   Index* getIndex(char* name);
