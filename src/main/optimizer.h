@@ -1,3 +1,5 @@
+#pragma once
+
 #include "metadata.h"
 
 #include "sql/statements.h"
@@ -36,11 +38,10 @@ struct CreatePlan : public Plan {
   CreatePlan(CreateType t) : Plan(kCreate), type(t) {}
   CreateType type;
   bool ifNotExists;
-  char* filePath;
   char* schema;
   char* tableName;
   char* indexName;
-  std::vector<char*>* indexColumns;
+  std::vector<ColumnDefinition*>* indexColumns;
   std::vector<ColumnDefinition*>* columns;
 };
 
@@ -78,10 +79,7 @@ struct SelectPlan : public Plan {
   Table* table;
 };
 
-enum ScanType {
-  kSeqScan,
-  kIndexScan
-};
+enum ScanType { kSeqScan, kIndexScan };
 
 struct ScanPlan : public Plan {
   ScanPlan() : Plan(kScan) {}

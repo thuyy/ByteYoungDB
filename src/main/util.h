@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sql/ColumnType.h"
 #include "sql/Table.h"
 #include "sql/statements.h"

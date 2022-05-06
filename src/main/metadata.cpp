@@ -9,13 +9,43 @@ namespace bydb {
 
 MetaData g_meta_data;
 
+ColumnDefinition* Table::getColumn(char* name) {
+  if (name == nullptr || strlen(name) == 0) {
+    return nullptr;
+  }
+
+  for (auto col : columns_) {
+    if (strcmp(name, col->name) == 0) {
+      return col;
+    }
+  }
+
+  return nullptr;
+}
+
+Index* Table::getIndex(char* name) {
+  if (name == nullptr || strlen(name) == 0) {
+    return nullptr;
+  }
+
+  for (auto index : indexes_) {
+    if (strcmp(name, index->name)) {
+      return index;
+    }
+  }
+
+  return nullptr;
+}
+
 bool MetaData::insertTable(Table* table) {
-  if (getTable(table->name.schema, table->name.name) != nullptr) {
-    std::cout << "# ERROR: Table " << TableNameToString(table->name)
+  if (getTable(table->schema(), table->name()) != nullptr) {
+    std::cout << "# ERROR: Table " << TableNameToString(table->schema(), table->name())
               << " already existed!" << std::endl;
     return false;
   } else {
-    table_map_.emplace(table->name, table);
+    TableName table_name;
+    SetTableName(table_name, table->schema(), table->name());
+    table_map_.emplace(table_name, table);
     return true;
   }
 }
@@ -28,7 +58,9 @@ bool MetaData::dropTable(char* schema, char* name) {
     return true;
   }
 
-  table_map_.erase(table->name);
+  TableName table_name;
+  SetTableName(table_name, schema, name);
+  table_map_.erase(table_name);
   delete table;
   return false;
 }
@@ -37,7 +69,7 @@ void MetaData::dropSchema(char* schema) {
   auto iter = table_map_.begin();
   while (iter != table_map_.end()) {
     Table* table = iter->second;
-    if (strcmp(table->name.schema, schema) == 0) {
+    if (strcmp(table->schema(), schema) == 0) {
       iter = table_map_.erase(iter);
       delete table;
     } else {
@@ -46,10 +78,20 @@ void MetaData::dropSchema(char* schema) {
   }
 }
 
+void MetaData::getAllTables(std::vector<Table*>* tables) {
+  if (tables == nullptr) {
+    return;
+  }
+
+  for (auto iter : table_map_) {
+    tables->push_back(iter.second);
+  }
+}
+
 bool MetaData::findSchema(char* schema) {
   for (auto iter : table_map_) {
     Table* table = iter.second;
-    if (strcmp(table->name.schema, schema) == 0) {
+    if (strcmp(table->schema(), schema) == 0) {
       return true;
     }
   }
@@ -84,7 +126,7 @@ Index* MetaData::getIndex(char* schema, char* name, char* index_name) {
     return nullptr;
   }
 
-  for (auto index : table->indexes) {
+  for (auto index : *table->indexes()) {
     if (strcmp(index->name, index_name) == 0) {
       return index;
     }

@@ -192,7 +192,7 @@ bool Parser::checkDeleteStmt(const DeleteStatement* stmt) {
   Table* table = g_meta_data.getTable(stmt->schema, stmt->tableName);
   if (table == nullptr) {
     std::cout << "# ERROR: Can not find table "
-              << TableNameToString(table->name) << std::endl;
+              << TableNameToString(table->schema(), table->name()) << std::endl;
     return true;
   }
 
@@ -221,14 +221,14 @@ Table* Parser::getTable(TableRef* table_ref) {
 }
 
 bool Parser::checkColumn(Table* table, char* col_name) {
-  for (auto col_def : table->columns) {
+  for (auto col_def : *table->columns()) {
     if (strcmp(col_name, col_def->name) == 0) {
       return false;
     }
   }
 
   std::cout << "# ERROR: Can not find column " << col_name << " in table "
-            << TableNameToString(table->name) << std::endl;
+            << TableNameToString(table->schema(), table->name()) << std::endl;
   return true;
 }
 

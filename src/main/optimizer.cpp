@@ -22,8 +22,7 @@ Plan* Optimizer::createPlanTree(const SQLStatement* stmt) {
     case kStmtDrop:
       return createDropPlanTree(static_cast<const DropStatement*>(stmt));
     case kStmtTransaction:
-      return createTrxPlanTree(
-          static_cast<const TransactionStatement*>(stmt));
+      return createTrxPlanTree(static_cast<const TransactionStatement*>(stmt));
     case kStmtShow:
       return createShowPlanTree(static_cast<const ShowStatement*>(stmt));
     default:
@@ -35,11 +34,47 @@ Plan* Optimizer::createPlanTree(const SQLStatement* stmt) {
 
 Plan* Optimizer::createCreatePlanTree(const CreateStatement* stmt) {
   CreatePlan* plan = new CreatePlan(stmt->type);
+  plan->ifNotExists = stmt->ifNotExists;
+  plan->type = stmt->type;
+  plan->schema = stmt->schema;
+  plan->tableName = stmt->tableName;
+  plan->indexName = stmt->indexName;
+  plan->columns = stmt->columns;
+  plan->next = nullptr;
+
+  if (plan->type == kCreateIndex) {
+    Table* table = g_meta_data.getTable(plan->schema, plan->tableName);
+    if (table == nullptr) {
+      delete plan;
+      return nullptr;
+    }
+
+    if (stmt->indexColumns != nullptr) {
+      plan->indexColumns = new std::vector<ColumnDefinition*>;
+    }
+
+    for (auto col_name : *stmt->indexColumns) {
+      ColumnDefinition* col_def = table->getColumn(col_name);
+      if (col_def == nullptr) {
+        delete plan->indexColumns;
+        delete plan;
+        return nullptr;
+      }
+      plan->indexColumns->push_back(col_def);
+    }
+  }
+
   return plan;
 }
 
 Plan* Optimizer::createDropPlanTree(const DropStatement* stmt) {
   DropPlan* plan = new DropPlan();
+  plan->type = stmt->type;
+  plan->ifExists = stmt->ifExists;
+  plan->schema = stmt->schema;
+  plan->name = stmt->name;
+  plan->indexName = stmt->indexName;
+  plan->next = nullptr;
   return plan;
 }
 
@@ -70,6 +105,10 @@ Plan* Optimizer::createTrxPlanTree(const TransactionStatement* stmt) {
 
 Plan* Optimizer::createShowPlanTree(const ShowStatement* stmt) {
   ShowPlan* plan = new ShowPlan();
+  plan->type = stmt->type;
+  plan->schema = stmt->schema;
+  plan->name = stmt->name;
+  plan->next = nullptr;
   return plan;
 }
 

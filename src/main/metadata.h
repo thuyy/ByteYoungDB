@@ -41,20 +41,29 @@ namespace bydb {
 
 struct Index {
   char* name;
-  std::vector<char*> columns;
+  std::vector<ColumnDefinition*> columns;
 };
 
-struct Table {
-  Table() {
-    name.schema = nullptr;
-    name.name = nullptr;
-    ref = nullptr;
+class Table {
+ public:
+  Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns)
+      : schema_(schema), name_(name) {
+    columns_ = *columns;
   }
 
-  TableName name;
-  TableRef* ref;
-  std::vector<ColumnDefinition*> columns;
-  std::vector<Index*> indexes;
+  ColumnDefinition* getColumn(char* name);
+  Index* getIndex(char* name);
+  char* schema() { return schema_; };
+  char* name() { return name_; };
+  std::vector<ColumnDefinition*>* columns() { return &columns_; };
+  std::vector<Index*>* indexes() { return &indexes_; };
+  void addIndex(Index* index) { indexes_.push_back(index); };
+
+ private:
+  char* schema_;
+  char* name_;
+  std::vector<ColumnDefinition*> columns_;
+  std::vector<Index*> indexes_;
 };
 
 class MetaData {
@@ -65,6 +74,7 @@ class MetaData {
   bool insertTable(Table* table);
   bool dropTable(char* schema, char* name);
   void dropSchema(char* schema);
+  void getAllTables(std::vector<Table*>* tables);
 
   bool findSchema(char* schema);
   Table* getTable(char* schema, char* name);
