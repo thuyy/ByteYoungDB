@@ -9,6 +9,68 @@ using namespace hsql;
 
 namespace bydb {
 
+BaseOperator* Executor::generateOperator(Plan* plan) {
+  BaseOperator* op = nullptr;
+  BaseOperator* next = nullptr;
+
+  /* Build Operator tree from the leaf. */
+  if (plan->next != nullptr) {
+    next = generateOperator(plan->next);
+  }
+
+  switch (plan->planType) {
+    case kCreate:
+      op = new CreateOperator(plan, next);
+      break;
+    case kDrop:
+      op = new DropOperator(plan, next);
+      break;
+    case kInsert:
+      op = new InsertOperator(plan, next);
+      break;
+    case kUpdate:
+      op = new UpdateOperator(plan, next);
+      break;
+    case kDelete:
+      op = new DeleteOperator(plan, next);
+      break;
+    case kSelect:
+      op = new SelectOperator(plan, next);
+      break;
+    case kScan: {
+      ScanPlan* scan_plan = static_cast<ScanPlan*>(plan);
+      if (scan_plan->type == kSeqScan) {
+        op = new SeqScanOperator(plan, next);
+      } else if (scan_plan->type == kIndexScan) {
+        op = new IndexScanOperator(plan, next);
+      }
+      break;
+    }
+    case kProjection:
+      op = new ProjectionOperator(plan, next);
+      break;
+    case kFilter:
+      op = new FilterOperator(plan, next);
+      break;
+    case kSort:
+      op = new SortOperator(plan, next);
+      break;
+    case kLimit:
+      op = new LimitOperator(plan, next);
+      break;
+    case kTrx:
+      op = new TrxOperator(plan, next);
+      break;
+    case kShow:
+      op = new ShowOperator(plan, next);
+      break;
+    default:
+      break;
+  }
+
+  return op;
+}
+
 bool CreateOperator::exec() {
   CreatePlan* create_plan = static_cast<CreatePlan*>(plan_);
 
@@ -64,6 +126,26 @@ bool CreateOperator::exec() {
   return false;
 }
 
+bool DropOperator::exec() {
+  return false;
+}
+
+bool InsertOperator::exec() {
+  return false;
+}
+
+bool UpdateOperator::exec() {
+  return false;
+}
+
+bool DeleteOperator::exec() {
+  return false;
+}
+
+bool TrxOperator::exec() {
+  return false;
+}
+
 bool ShowOperator::exec() {
   ShowPlan* show_plan = static_cast<ShowPlan*>(plan_);
   if (show_plan->type == kShowTables) {
@@ -94,6 +176,34 @@ bool ShowOperator::exec() {
     return true;
   }
 
+  return false;
+}
+
+bool SelectOperator::exec() {
+  return false;
+}
+
+bool IndexScanOperator::exec() {
+  return false;
+}
+
+bool SeqScanOperator::exec() {
+  return false;
+}
+
+bool FilterOperator::exec() {
+  return false;
+}
+
+bool SortOperator::exec() {
+  return false;
+}
+
+bool LimitOperator::exec() {
+  return false;
+}
+
+bool ProjectionOperator::exec() {
   return false;
 }
 
