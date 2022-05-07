@@ -76,52 +76,52 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
 }
 
 bool CreateOperator::exec() {
-  CreatePlan* create_plan = static_cast<CreatePlan*>(plan_);
+  CreatePlan* plan = static_cast<CreatePlan*>(plan_);
 
-  if (create_plan->type == kCreateTable) {
-    Table* table =
-        g_meta_data.getTable(create_plan->schema, create_plan->tableName);
-    if (table != nullptr) {
-      if (create_plan->ifNotExists) {
+  if (plan->type == kCreateTable) {
+    Table* table = new Table(plan->schema, plan->tableName, plan->columns);
+    if (g_meta_data.insertTable(table)) {
+      if (plan->ifNotExists) {
+        std::cout << "# INFO: Table "
+                  << TableNameToString(plan->schema, plan->tableName)
+                  << " already existed." << std::endl;
         return false;
       } else {
         std::cout << "# ERROR: Table "
-                  << TableNameToString(create_plan->schema,
-                                       create_plan->tableName)
+                  << TableNameToString(plan->schema, plan->tableName)
                   << " already existed." << std::endl;
         return true;
       }
+      delete table;
     }
 
-    table = new Table(create_plan->schema, create_plan->tableName,
-                      create_plan->columns);
-    g_meta_data.insertTable(table);
-  } else if (create_plan->type == kCreateIndex) {
-    Table* table =
-        g_meta_data.getTable(create_plan->schema, create_plan->tableName);
+    std::cout << "# INFO: Create table successfully." << std::endl;
+    return false;
+  } else if (plan->type == kCreateIndex) {
+    Table* table = g_meta_data.getTable(plan->schema, plan->tableName);
     if (table == nullptr) {
       std::cout << "# ERROR: Table "
-                << TableNameToString(create_plan->schema,
-                                     create_plan->tableName)
+                << TableNameToString(plan->schema, plan->tableName)
                 << " did not exist." << std::endl;
       return true;
     }
 
-    Index* index = table->getIndex(create_plan->indexName);
+    Index* index = table->getIndex(plan->indexName);
     if (index != nullptr) {
-      if (create_plan->ifNotExists) {
+      if (plan->ifNotExists) {
         return false;
       } else {
-        std::cout << "# ERROR: Index " << create_plan->indexName
-                  << " already existed." << std::endl;
+        std::cout << "# ERROR: Index " << plan->indexName << " already existed."
+                  << std::endl;
         return true;
       }
     }
 
     index = new Index();
-    index->name = create_plan->indexName;
-    index->columns = *create_plan->indexColumns;
+    index->name = plan->indexName;
+    index->columns = *plan->indexColumns;
     table->addIndex(index);
+    std::cout << "# INFO: Create index successfully." << std::endl;
   } else {
     std::cout << "# ERROR: Invalid 'Show' statement." << std::endl;
     return true;
@@ -130,7 +130,54 @@ bool CreateOperator::exec() {
   return false;
 }
 
-bool DropOperator::exec() { return false; }
+bool DropOperator::exec() {
+  DropPlan* plan = static_cast<DropPlan*>(plan_);
+  if (plan->type == kDropSchema) {
+    if (g_meta_data.dropSchema(plan->schema)) {
+      if (plan->ifExists) {
+        std::cout << "# INFO: Schema " << plan->schema << " did not exist." << std::endl;
+        return false;
+      } else {
+        std::cout << "# ERROR: Schema " << plan->schema << " did not exist." << std::endl;
+        return true;
+      }
+    }
+
+    std::cout << "# INFO: Drop schema successfully." << std::endl;
+    return false;
+  } else if (plan->type == kDropTable) {
+    if (g_meta_data.dropTable(plan->schema, plan->name)) {
+      if (plan->ifExists) {
+        std::cout << "# INFO: Table " << TableNameToString(plan->schema, plan->name) << " did not exist." << std::endl;
+        return false;
+      } else {
+        std::cout << "# ERROR: Table " << TableNameToString(plan->schema, plan->name) << " did not exist." << std::endl;
+        return true;
+      }
+    }
+
+    std::cout << "# INFO: Drop schema successfully." << std::endl;
+    return false;
+  } else if (plan->type == kDropIndex) {
+    if (g_meta_data.dropIndex(plan->schema, plan->name, plan->indexName)) {
+      if (plan->ifExists) {
+        std::cout << "# INFO: Index " << plan->indexName << " did not exist." << std::endl;
+        return false;
+      } else {
+        std::cout << "# ERROR: Index " << plan->indexName << " did not exist." << std::endl;
+        return true;
+      }
+    }
+
+    std::cout << "# INFO: Drop index successfully." << std::endl;
+    return false;
+  } else {
+    std::cout << "# ERROR: Invalid 'Drop' statement." << std::endl;
+    return true;
+  }
+
+  return false;
+}
 
 bool InsertOperator::exec() { return false; }
 
@@ -146,7 +193,7 @@ bool ShowOperator::exec() {
     std::vector<Table*> tables;
     g_meta_data.getAllTables(&tables);
 
-    std::cout << "Table List:" << std::endl;
+    std::cout << "# Table List:" << std::endl;
     for (auto table : tables) {
       std::cout << TableNameToString(table->schema(), table->name())
                 << std::endl;
@@ -159,11 +206,19 @@ bool ShowOperator::exec() {
                 << std::endl;
       return true;
     }
-    std::cout << TableNameToString(show_plan->schema, show_plan->name)
-              << " column list:" << std::endl;
+    std::cout << "# Columns in "
+              << TableNameToString(show_plan->schema, show_plan->name) << ":"
+              << std::endl;
     for (auto col_def : *table->columns()) {
-      std::cout << col_def->name << "\t"
-                << DataTypeToString(col_def->type.data_type) << std::endl;
+      if (col_def->type.data_type == DataType::CHAR ||
+          col_def->type.data_type == DataType::VARCHAR) {
+        std::cout << col_def->name << "\t"
+                  << DataTypeToString(col_def->type.data_type) << "("
+                  << col_def->type.length << ")" << std::endl;
+      } else {
+        std::cout << col_def->name << "\t"
+                  << DataTypeToString(col_def->type.data_type) << std::endl;
+      }
     }
   } else {
     std::cout << "# ERROR: Invalid 'Show' statement." << std::endl;

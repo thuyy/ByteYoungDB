@@ -70,8 +70,9 @@ class MetaData {
   ~MetaData(){};
 
   bool insertTable(Table* table);
+  bool dropIndex(char* schema, char* name, char* indexName);
   bool dropTable(char* schema, char* name);
-  void dropSchema(char* schema);
+  bool dropSchema(char* schema);
   void getAllTables(std::vector<Table*>* tables);
 
   bool findSchema(char* schema);

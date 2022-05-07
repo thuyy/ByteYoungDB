@@ -62,23 +62,39 @@ Index* Table::getIndex(char* name) {
 
 bool MetaData::insertTable(Table* table) {
   if (getTable(table->schema(), table->name()) != nullptr) {
-    std::cout << "# ERROR: Table "
-              << TableNameToString(table->schema(), table->name())
-              << " already existed!" << std::endl;
-    return false;
+    return true;
   } else {
     TableName table_name;
     SetTableName(table_name, table->schema(), table->name());
     table_map_.emplace(table_name, table);
+    return false;
+  }
+}
+
+bool MetaData::dropIndex(char* schema, char* name, char* indexName) {
+  Table* table = getTable(schema, name);
+  if (table == nullptr) {
+    std::cout << "# ERROR: Table " << TableNameToString(schema, name)
+              << " did not exist!" << std::endl;
     return true;
   }
+
+  bool ret = true;
+  std::vector<Index*>& indexes = *table->indexes();
+  for (size_t i = 0; i < indexes.size(); i++) {
+    Index* index = indexes[i];
+    if (strcmp(index->name, indexName) == 0) {
+      indexes.erase(indexes.begin() + i);
+      ret = false;
+    }
+  }
+
+  return ret;
 }
 
 bool MetaData::dropTable(char* schema, char* name) {
   Table* table = getTable(schema, name);
   if (table == nullptr) {
-    std::cout << "# ERROR: Table " << TableNameToString(schema, name)
-              << " did not exist!" << std::endl;
     return true;
   }
 
@@ -89,17 +105,21 @@ bool MetaData::dropTable(char* schema, char* name) {
   return false;
 }
 
-void MetaData::dropSchema(char* schema) {
+bool MetaData::dropSchema(char* schema) {
   auto iter = table_map_.begin();
+  bool ret = true;
   while (iter != table_map_.end()) {
     Table* table = iter->second;
     if (strcmp(table->schema(), schema) == 0) {
+      std::cout << "# INFO: Drop table " << table->name() << " in schema " << schema << std::endl;
       iter = table_map_.erase(iter);
       delete table;
+      ret = false;
     } else {
       iter++;
     }
   }
+  return ret;
 }
 
 void MetaData::getAllTables(std::vector<Table*>* tables) {
