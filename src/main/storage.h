@@ -4,6 +4,8 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
+#include <unordered_map>
 #include <vector>
 
 using namespace hsql;

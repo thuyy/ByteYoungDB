@@ -22,6 +22,8 @@ bool Parser::parseStatement(std::string query) {
 
   if (result_->isValid()) {
     return checkStmtsMeta();
+  } else {
+    std::cout << "# ERROR: Failed to parse sql statement." << std::endl;
   }
 
   return true;
@@ -336,13 +338,8 @@ bool Parser::checkCreateStmt(const CreateStatement* stmt) {
         return true;
       }
       break;
-    case kCreateIndex:
-      if (checkCreateIndexStmt(stmt)) {
-        return true;
-      }
-      break;
     default:
-      std::cout << "# ERROR: Only support 'Create Table/Index'." << std::endl;
+      std::cout << "# ERROR: Only support 'Create Table'." << std::endl;
       return true;
   }
 

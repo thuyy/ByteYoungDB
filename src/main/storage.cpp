@@ -25,11 +25,9 @@ TableStore::TableStore(std::vector<ColumnDefinition*>* columns)
   tupleSize_ += colNum_;
 
   // Add space for header
-
   tupleSize_ += sizeof(Tuple*) * 2;
   tupleSize_ += sizeof(trx_id_t);
   tupleSize_ += sizeof(bool);
-
 }
 
 TableStore::~TableStore() {
