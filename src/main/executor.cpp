@@ -135,10 +135,12 @@ bool DropOperator::exec() {
   if (plan->type == kDropSchema) {
     if (g_meta_data.dropSchema(plan->schema)) {
       if (plan->ifExists) {
-        std::cout << "# INFO: Schema " << plan->schema << " did not exist." << std::endl;
+        std::cout << "# INFO: Schema " << plan->schema << " did not exist."
+                  << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Schema " << plan->schema << " did not exist." << std::endl;
+        std::cout << "# ERROR: Schema " << plan->schema << " did not exist."
+                  << std::endl;
         return true;
       }
     }
@@ -148,10 +150,14 @@ bool DropOperator::exec() {
   } else if (plan->type == kDropTable) {
     if (g_meta_data.dropTable(plan->schema, plan->name)) {
       if (plan->ifExists) {
-        std::cout << "# INFO: Table " << TableNameToString(plan->schema, plan->name) << " did not exist." << std::endl;
+        std::cout << "# INFO: Table "
+                  << TableNameToString(plan->schema, plan->name)
+                  << " did not exist." << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Table " << TableNameToString(plan->schema, plan->name) << " did not exist." << std::endl;
+        std::cout << "# ERROR: Table "
+                  << TableNameToString(plan->schema, plan->name)
+                  << " did not exist." << std::endl;
         return true;
       }
     }
@@ -161,10 +167,12 @@ bool DropOperator::exec() {
   } else if (plan->type == kDropIndex) {
     if (g_meta_data.dropIndex(plan->schema, plan->name, plan->indexName)) {
       if (plan->ifExists) {
-        std::cout << "# INFO: Index " << plan->indexName << " did not exist." << std::endl;
+        std::cout << "# INFO: Index " << plan->indexName << " did not exist."
+                  << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Index " << plan->indexName << " did not exist." << std::endl;
+        std::cout << "# ERROR: Index " << plan->indexName << " did not exist."
+                  << std::endl;
         return true;
       }
     }
@@ -179,7 +187,11 @@ bool DropOperator::exec() {
   return false;
 }
 
-bool InsertOperator::exec() { return false; }
+bool InsertOperator::exec() {
+  InsertPlan* plan = static_cast<InsertPlan*>(plan_);
+  TableStore* table_store = plan->table->getTableStore();
+  return table_store->insertTuple(plan->values);
+}
 
 bool UpdateOperator::exec() { return false; }
 

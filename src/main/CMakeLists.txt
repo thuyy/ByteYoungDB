@@ -10,8 +10,8 @@ set(BYTE_YOUNG_SRC
   util.cpp
 )
 
-add_executable(byte_young
+add_executable(bydb
   ${BYTE_YOUNG_SRC})
 
-target_link_libraries(byte_young
+target_link_libraries(bydb
   ${CMAKE_SOURCE_DIR}/sql-parser/lib/libsqlparser.so)

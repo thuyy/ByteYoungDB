@@ -58,7 +58,6 @@ struct InsertPlan : public Plan {
   InsertPlan() : Plan(kInsert) {}
   InsertType type;
   Table* table;
-  std::vector<ColumnDefinition*>* columns;
   std::vector<Expr*>* values;
 };
 

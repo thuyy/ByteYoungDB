@@ -80,6 +80,10 @@ Plan* Optimizer::createDropPlanTree(const DropStatement* stmt) {
 
 Plan* Optimizer::createInsertPlanTree(const InsertStatement* stmt) {
   InsertPlan* plan = new InsertPlan();
+  plan->type = stmt->type;
+  plan->table = g_meta_data.getTable(stmt->schema, stmt->tableName);
+  plan->values = stmt->values;
+
   return plan;
 }
 

@@ -2,6 +2,7 @@
 #include "metadata.h"
 #include "util.h"
 
+#include <cstdint>
 #include <iostream>
 
 using namespace hsql;
@@ -149,12 +150,38 @@ bool Parser::checkInsertStmt(const InsertStatement* stmt) {
     }
   }
 
-  if (stmt->values != nullptr) {
-    for (auto value : *stmt->values) {
-      if (checkExpr(table, value)) {
-        return true;
+  /* Prepare values for each columns in the table.
+  If value was not provided for some columns, add NULL expr for then. */
+  std::vector<Expr*> new_values;
+  for (size_t i = 0; i < table->columns()->size(); i++) {
+    auto col_def = (*table->columns())[i];
+    if (stmt->columns != nullptr) {
+      size_t j;
+      for (j = 0; j < stmt->columns->size(); j++) {
+        if (strcmp(col_def->name, (*stmt->columns)[j])) {
+          break;
+        }
+      }
+      if (j < stmt->columns->size()) {
+        new_values.push_back((*stmt->values)[j]);
+      } else {
+        Expr* e = new Expr(kExprLiteralNull);
+        new_values.push_back(e);
+      }
+    } else {
+      if (i < stmt->values->size()) {
+        new_values.push_back((*stmt->values)[i]);
+      } else {
+        Expr* e = new Expr(kExprLiteralNull);
+        new_values.push_back(e);
       }
     }
+  }
+
+  stmt->values->assign(new_values.begin(), new_values.end());
+
+  if (checkValues(table->columns(), stmt->values)) {
+    return true;
   }
 
   return false;
@@ -258,6 +285,45 @@ bool Parser::checkExpr(Table* table, Expr* expr) {
     default:
       std::cout << "# ERROR: Unsupport opertation " << std::endl;
       return true;
+  }
+
+  return false;
+}
+
+bool Parser::checkValues(std::vector<ColumnDefinition*>* columns, std::vector<Expr*>* values) {
+  for (size_t i = 0; i < columns->size(); i++) {
+    auto col_def = (*columns)[i];
+    auto expr = (*values)[i];
+
+    switch (col_def->type.data_type) {
+      case DataType::INT:
+      case DataType::LONG:
+        if (expr->type != kExprLiteralInt) {
+          std::cout << "# ERROR: Invalid insert value type " << ExprTypeToString(expr->type)
+                    << " for column " << col_def->name << std::endl;
+          return true;
+        }
+        if (col_def->type.data_type == DataType::INT && expr->ival > INT32_MAX) {
+          std::cout << "# ERROR: The value " << expr->ival << " exceed the limitation of INT32_MAX" << std::endl;
+          return true;
+        }
+        break;
+      case DataType::CHAR:
+      case DataType::VARCHAR:
+        if (expr->type != kExprLiteralString) {
+          std::cout << "# ERROR: Invalid insert value type " << ExprTypeToString(expr->type)
+                    << " for column " << col_def->name << std::endl;
+          return true;
+        }
+        if (strlen(expr->name) > static_cast<size_t>(col_def->type.length)) {
+          std::cout << "# ERROR: The value '" << expr->name << "' is too long for column " << col_def->name << std::endl;
+          return true;
+        }
+        break;
+      default:
+        return true;
+        break;
+    }
   }
 
   return false;

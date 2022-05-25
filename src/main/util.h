@@ -1,5 +1,7 @@
 #pragma once
 
+#include "storage.h"
+
 #include "sql/ColumnType.h"
 #include "sql/Table.h"
 #include "sql/statements.h"
@@ -28,5 +30,11 @@ inline void SetTableName(TableName& table_name, char* schema, char* name) {
 const char* StmtTypeToString(StatementType type);
 const char* DataTypeToString(DataType type);
 const char* DropTypeToString(DropType type);
+const char* ExprTypeToString(ExprType type);
+
+size_t ColumnTypeSize(ColumnType& type);
+
+void PrintTuples(std::vector<ColumnDefinition*>& columns,
+                 std::vector<Tuple*>& tuples);
 
 }  // namespace bydb

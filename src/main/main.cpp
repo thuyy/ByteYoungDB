@@ -38,13 +38,17 @@ static bool ExecStmt(std::string stmt) {
 int main(int argc, char* argv[]) {
   std::cout << "# Welcome to ByteYoung DB!!!" << std::endl;
   std::cout << "# Input your query in one line." << std::endl;
-  std::cout << "# Enter 'exit' to quit this program." << std::endl;
+  std::cout << "# Enter 'exit' or 'q' to quit this program." << std::endl;
 
   std::string cmd;
   while (true) {
     std::cout << ">> ";
     std::getline(std::cin, cmd);
-    if (cmd == "exit") {
+    if (cmd.length() == 0) {
+      continue;
+    }
+
+    if (cmd == "exit" || cmd == "q") {
       break;
     }
 

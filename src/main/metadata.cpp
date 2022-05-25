@@ -9,8 +9,8 @@ namespace bydb {
 
 MetaData g_meta_data;
 
-Table::Table(char* schema, char* name,
-             std::vector<ColumnDefinition*>* columns) {
+Table::Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns)
+    : tableStore_(columns) {
   schema_ = strdup(schema);
   name_ = strdup(name);
   for (auto col_old : *columns) {
@@ -111,7 +111,8 @@ bool MetaData::dropSchema(char* schema) {
   while (iter != table_map_.end()) {
     Table* table = iter->second;
     if (strcmp(table->schema(), schema) == 0) {
-      std::cout << "# INFO: Drop table " << table->name() << " in schema " << schema << std::endl;
+      std::cout << "# INFO: Drop table " << table->name() << " in schema "
+                << schema << std::endl;
       iter = table_map_.erase(iter);
       delete table;
       ret = false;
