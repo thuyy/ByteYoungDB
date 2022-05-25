@@ -1,7 +1,6 @@
 #pragma once
 
-#include "sql/CreateStatement.h"
-#include "sql/Expr.h"
+#include "sql/statements.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -17,9 +16,58 @@ typedef unsigned char uchar;
 typedef uint64_t trx_id_t;
 
 struct Tuple {
+  Tuple* prev;
+  Tuple* next;
   trx_id_t trx_id;
   bool is_free;
   uchar data[];
+};
+
+class TupleList {
+public:
+  TupleList() {
+    head_ = static_cast<Tuple *>(malloc(sizeof(Tuple)));
+    tail_ = static_cast<Tuple *>(malloc(sizeof(Tuple)));
+    head_->next = tail_;
+    tail_->prev = head_;
+    head_->prev = nullptr;
+    tail_->next = nullptr;
+  }
+
+  void addHead(Tuple* tup) {
+    Tuple* ntup = head_->next;
+    ntup->prev = tup;
+    tup->next = ntup;
+    head_->next = tup;
+    tup->prev = head_;
+  }
+
+  void delTuple(Tuple* tup) {
+    Tuple* ntup = tup->next;
+    Tuple* ptup = tup->prev;
+    ptup->next = ntup;
+    ntup->prev = ptup;
+    tup->next = nullptr;
+    tup->prev = nullptr;
+  }
+
+  Tuple* popHead() {
+    if (head_->next == tail_) {
+      return nullptr;
+    }
+
+    Tuple* tup = head_->next;
+    delTuple(tup);
+    return tup;
+  }
+
+  bool isEmpty() {
+    return (head_->next == tail_);
+  }
+
+private:
+  Tuple* head_;
+  Tuple* tail_;
 };
 
 class TableStore {
@@ -29,13 +77,14 @@ class TableStore {
 
   bool insertTuple(std::vector<Expr*>* values);
   bool deleteTuple(Tuple* tup);
-  bool updateTuple();
+  bool updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates);
 
   void seqScan();
   void indexScan();
 
  private:
   bool newTupleGroup();
+  void setColValue(Tuple* tup, int idx, Expr* expr);
 
   int colNum_;
   int tupleSize_;
@@ -44,8 +93,8 @@ class TableStore {
   std::vector<ColumnDefinition*>* columns_;
   std::vector<int> colOffset_;
   std::vector<Tuple*> tupleGroups_;
-  std::vector<Tuple*> freeTuples_;
-  std::vector<Tuple*> data_;
+  TupleList freeList_;
+  TupleList dataList_;
 };
 
 }  // namespace bydb
