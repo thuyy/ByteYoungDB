@@ -157,13 +157,10 @@ add one more byte for the symbol
 #define MAX_INT64_LEN 20
 
 void PrintTuples(std::vector<ColumnDefinition*>& columns,
-                 std::vector<Tuple*>& tuples) {
+                 std::vector<std::vector<Expr*>>& tuples) {
   /* Calculate offset and length for each column */
   size_t total_len = 0;
-  size_t total_off = 0;
   std::vector<size_t> col_lens;
-  std::vector<size_t> col_offs;
-  col_offs.push_back(0);
   for (auto col : columns) {
     size_t len = col->type.length;
     len = (strlen(col->name) > len) ? strlen(col->name) : len;
@@ -175,9 +172,6 @@ void PrintTuples(std::vector<ColumnDefinition*>& columns,
     len += 2; // reserve some space
     col_lens.push_back(len);
     total_len += len;
-
-    total_off += ColumnTypeSize(col->type);
-    col_offs.push_back(total_off);
   }
 
   /* Print column names */
@@ -192,38 +186,21 @@ void PrintTuples(std::vector<ColumnDefinition*>& columns,
 
   /* Print each tuple */
   for (auto tup : tuples) {
-    bool* is_null = reinterpret_cast<bool*>(&tup->data[0]);
-    uchar* data = tup->data + columns.size();
-
-    for (size_t i = 0; i < columns.size(); i++) {
+    int i = 0;
+    for (auto expr : tup) {
       std::cout.width(col_lens[i]);
-      auto col = columns[i];
-
-      if (is_null[i]) {
-        std::cout << "NULL";
-        continue;
-      }
-      
-      size_t offset = col_offs[i];
-      uchar* ptr = &data[offset];
-      switch (col->type.data_type) {
-        case DataType::INT: {
-          int32_t val = *(reinterpret_cast<int32_t*>(ptr));
-          std::cout << val;
+      i++;
+      switch (expr->type) {
+        case kExprLiteralString:
+          std::cout << expr->name;
           break;
-        }
-        case DataType::LONG: {
-          int64_t val = *(reinterpret_cast<int64_t*>(ptr));
-          std::cout << val;
+        case kExprLiteralInt:
+          std::cout << expr->ival;
           break;
-        }
-        case DataType::CHAR:
-        case DataType::VARCHAR: {
-          std::cout << reinterpret_cast<char*>(ptr);
+        case kExprLiteralNull:
+          std::cout << "NULL";
           break;
-        }
         default:
-          std::cout << " ";
           break;
       }
     }

@@ -35,6 +35,6 @@ const char* ExprTypeToString(ExprType type);
 size_t ColumnTypeSize(ColumnType& type);
 
 void PrintTuples(std::vector<ColumnDefinition*>& columns,
-                 std::vector<Tuple*>& tuples);
+                 std::vector<std::vector<Expr*>>& tuples);
 
 }  // namespace bydb
