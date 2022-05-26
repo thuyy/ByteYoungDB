@@ -59,7 +59,8 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
       op = new ShowOperator(plan, next);
       break;
     default:
-      std::cout << "[BYDB-Error]  Not support plan node " << PlanTypeToString(plan->planType);
+      std::cout << "[BYDB-Error]  Not support plan node "
+                << PlanTypeToString(plan->planType);
       break;
   }
 
@@ -102,8 +103,8 @@ bool CreateOperator::exec(TupleIter** iter) {
       if (plan->ifNotExists) {
         return false;
       } else {
-        std::cout << "[BYDB-Error]  Index " << plan->indexName << " already existed."
-                  << std::endl;
+        std::cout << "[BYDB-Error]  Index " << plan->indexName
+                  << " already existed." << std::endl;
         return true;
       }
     }
@@ -130,8 +131,8 @@ bool DropOperator::exec(TupleIter** iter) {
                   << std::endl;
         return false;
       } else {
-        std::cout << "[BYDB-Error]  Schema " << plan->schema << " did not exist."
-                  << std::endl;
+        std::cout << "[BYDB-Error]  Schema " << plan->schema
+                  << " did not exist." << std::endl;
         return true;
       }
     }
@@ -158,12 +159,12 @@ bool DropOperator::exec(TupleIter** iter) {
   } else if (plan->type == kDropIndex) {
     if (g_meta_data.dropIndex(plan->schema, plan->name, plan->indexName)) {
       if (plan->ifExists) {
-        std::cout << "[BYDB-Info]  Index " << plan->indexName << " did not exist."
-                  << std::endl;
+        std::cout << "[BYDB-Info]  Index " << plan->indexName
+                  << " did not exist." << std::endl;
         return false;
       } else {
-        std::cout << "[BYDB-Error]  Index " << plan->indexName << " did not exist."
-                  << std::endl;
+        std::cout << "[BYDB-Error]  Index " << plan->indexName
+                  << " did not exist." << std::endl;
         return true;
       }
     }
@@ -189,9 +190,9 @@ bool InsertOperator::exec(TupleIter** iter) {
 }
 
 bool UpdateOperator::exec(TupleIter** iter) {
-  UpdatePlan* update = static_cast<UpdatePlan *>(plan_);
-  Table *table = update->table;
-  TableStore *table_store = table->getTableStore();
+  UpdatePlan* update = static_cast<UpdatePlan*>(plan_);
+  Table* table = update->table;
+  TableStore* table_store = table->getTableStore();
   int upd_cnt = 0;
 
   while (true) {
@@ -208,14 +209,14 @@ bool UpdateOperator::exec(TupleIter** iter) {
     }
   }
 
-
-  std::cout << "[BYDB-Info]  Update " << upd_cnt << " tuple successfully." << std::endl;
+  std::cout << "[BYDB-Info]  Update " << upd_cnt << " tuple successfully."
+            << std::endl;
   return false;
 }
 
 bool DeleteOperator::exec(TupleIter** iter) {
-  Table *table = static_cast<DeletePlan *>(plan_)->table;
-  TableStore *table_store = table->getTableStore();
+  Table* table = static_cast<DeletePlan*>(plan_)->table;
+  TableStore* table_store = table->getTableStore();
   int del_cnt = 0;
 
   while (true) {
@@ -232,7 +233,8 @@ bool DeleteOperator::exec(TupleIter** iter) {
     }
   }
 
-  std::cout << "[BYDB-Info]  Delete " << del_cnt << " tuple successfully." << std::endl;
+  std::cout << "[BYDB-Info]  Delete " << del_cnt << " tuple successfully."
+            << std::endl;
   return false;
 }
 
@@ -316,7 +318,7 @@ bool SelectOperator::exec(TupleIter** iter) {
   }
 
   PrintTuples(plan->outCols, plan->colIds, tuples);
-  return false;  
+  return false;
 }
 
 bool SeqScanOperator::exec(TupleIter** iter) {
@@ -368,7 +370,7 @@ bool FilterOperator::exec(TupleIter** iter) {
       break;
     }
   }
-  
+
   return false;
 }
 
@@ -385,7 +387,7 @@ bool FilterOperator::execEqualExpr(TupleIter* iter) {
   if (col_val->type == kExprLiteralInt) {
     return (col_val->ival == val->ival);
   }
-  
+
   if (col_val->type == kExprLiteralString) {
     return (strcmp(col_val->name, val->name) == 0);
   }

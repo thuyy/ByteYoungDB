@@ -17,7 +17,6 @@ namespace bydb {
 
 typedef unsigned char uchar;
 
-
 struct Tuple {
   Tuple* prev;
   Tuple* next;
@@ -25,10 +24,10 @@ struct Tuple {
 };
 
 class TupleList {
-public:
+ public:
   TupleList() {
-    head_ = static_cast<Tuple *>(malloc(sizeof(Tuple)));
-    tail_ = static_cast<Tuple *>(malloc(sizeof(Tuple)));
+    head_ = static_cast<Tuple*>(malloc(sizeof(Tuple)));
+    tail_ = static_cast<Tuple*>(malloc(sizeof(Tuple)));
     head_->next = tail_;
     tail_->prev = head_;
     head_->prev = nullptr;
@@ -73,11 +72,9 @@ public:
     return (tup->next == tail_) ? nullptr : tup->next;
   }
 
-  bool isEmpty() {
-    return (head_->next == tail_);
-  }
+  bool isEmpty() { return (head_->next == tail_); }
 
-private:
+ private:
   Tuple* head_;
   Tuple* tail_;
 };
@@ -89,10 +86,11 @@ class TableStore {
 
   bool insertTuple(std::vector<Expr*>* values);
   bool deleteTuple(Tuple* tup);
-  bool updateTuple(Tuple* tup, std::vector<size_t>& idxs, std::vector<Expr*>& values);
+  bool updateTuple(Tuple* tup, std::vector<size_t>& idxs,
+                   std::vector<Expr*>& values);
 
   void removeTuple(Tuple* tup);
-  void recoverTuple(Tuple *tup);
+  void recoverTuple(Tuple* tup);
   void freeTuple(Tuple* tup);
 
   Tuple* seqScan(Tuple* tup);

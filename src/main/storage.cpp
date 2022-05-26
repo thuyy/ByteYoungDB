@@ -74,15 +74,12 @@ void TableStore::removeTuple(Tuple* tup) {
   freeList_.addHead(tup);
 }
 
-void TableStore::recoverTuple(Tuple *tup) {
-  dataList_.addHead(tup);
-}
+void TableStore::recoverTuple(Tuple* tup) { dataList_.addHead(tup); }
 
-void TableStore::freeTuple(Tuple* tup) {
-  freeList_.addHead(tup);
-}
+void TableStore::freeTuple(Tuple* tup) { freeList_.addHead(tup); }
 
-bool TableStore::updateTuple(Tuple* tup, std::vector<size_t>& idxs, std::vector<Expr*>& values) {
+bool TableStore::updateTuple(Tuple* tup, std::vector<size_t>& idxs,
+                             std::vector<Expr*>& values) {
   if (g_transaction.inTransaction()) {
     g_transaction.addUpdateUndo(this, tup);
   }
@@ -149,8 +146,8 @@ bool TableStore::newTupleGroup() {
       static_cast<Tuple*>(malloc(tupleSize_ * TUPLE_GROUP_SIZE));
   memset(tuple_group, 0, (tupleSize_ * TUPLE_GROUP_SIZE));
   if (tuple_group == nullptr) {
-    std::cout << "[BYDB-Error]  Failed to malloc " << tupleSize_ * TUPLE_GROUP_SIZE
-              << " bytes";
+    std::cout << "[BYDB-Error]  Failed to malloc "
+              << tupleSize_ * TUPLE_GROUP_SIZE << " bytes";
     return true;
   }
 

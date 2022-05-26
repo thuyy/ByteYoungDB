@@ -53,7 +53,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (ExecStmt(cmd)) {
-      std::cout << "[BYDB-Error]  Failed to execute '" << cmd << "'" << std::endl;
+      std::cout << "[BYDB-Error]  Failed to execute '" << cmd << "'"
+                << std::endl;
     }
     std::cout << std::endl;
   }

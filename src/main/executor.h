@@ -19,9 +19,7 @@ struct TupleIter {
 class BaseOperator {
  public:
   BaseOperator(Plan* plan, BaseOperator* next) : plan_(plan), next_(next) {}
-  virtual ~BaseOperator() {
-    delete next_;
-  }
+  virtual ~BaseOperator() { delete next_; }
   virtual bool exec(TupleIter** iter = nullptr) = 0;
 
   Plan* plan_;
@@ -86,7 +84,8 @@ class SelectOperator : public BaseOperator {
 
 class SeqScanOperator : public BaseOperator {
  public:
-  SeqScanOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next), finish(false), nextTuple_(nullptr) {}
+  SeqScanOperator(Plan* plan, BaseOperator* next)
+      : BaseOperator(plan, next), finish(false), nextTuple_(nullptr) {}
   ~SeqScanOperator() {
     for (auto iter : tuples_) {
       delete iter;

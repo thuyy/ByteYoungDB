@@ -44,7 +44,8 @@ class Parser {
 
   bool checkExpr(Table* table, Expr* expr);
 
-  bool checkValues(std::vector<ColumnDefinition*>* columns, std::vector<Expr*>* values);
+  bool checkValues(std::vector<ColumnDefinition*>* columns,
+                   std::vector<Expr*>* values);
 
   SQLParserResult* result_;
 };

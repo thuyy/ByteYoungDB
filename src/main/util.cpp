@@ -208,7 +208,7 @@ void PrintTuples(std::vector<ColumnDefinition*>& columns,
     } else if (col->type.data_type == DataType::LONG) {
       len = (MAX_INT64_LEN > len) ? MAX_INT64_LEN : len;
     }
-    len += 2; // reserve some space
+    len += 2;  // reserve some space
     col_lens.push_back(len);
     total_len += len;
   }
@@ -226,7 +226,7 @@ void PrintTuples(std::vector<ColumnDefinition*>& columns,
   /* Print each tuple */
   for (auto tup : tuples) {
     for (size_t i = 0; i < columns.size(); i++) {
-      Expr *expr = tup[colIds[i]];
+      Expr* expr = tup[colIds[i]];
       std::cout.width(col_lens[i]);
       switch (expr->type) {
         case kExprLiteralString:

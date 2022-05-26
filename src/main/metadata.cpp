@@ -9,7 +9,8 @@ namespace bydb {
 
 MetaData g_meta_data;
 
-Table::Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns) {
+Table::Table(char* schema, char* name,
+             std::vector<ColumnDefinition*>* columns) {
   schema_ = strdup(schema);
   name_ = strdup(name);
   for (auto col_old : *columns) {

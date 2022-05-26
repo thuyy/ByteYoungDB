@@ -8,7 +8,8 @@ namespace bydb {
 enum UndoType { kInsertUndo, kDeleteUndo, kUpdateUndo };
 
 struct Undo {
-  Undo(UndoType t) : type(t), tableStore(nullptr), curTup(nullptr), oldTup(nullptr) {}
+  Undo(UndoType t)
+      : type(t), tableStore(nullptr), curTup(nullptr), oldTup(nullptr) {}
   ~Undo() {
     if (type == kUpdateUndo) {
       free(oldTup);

@@ -21,14 +21,13 @@ void Transaction::addUpdateUndo(TableStore* table_store, Tuple* tup) {
   Undo* undo = new Undo(kUpdateUndo);
   undo->tableStore = table_store;
   undo->oldTup = static_cast<Tuple*>(malloc(table_store->tupleSize()));
-  memcpy(undo->oldTup->data, tup->data, table_store->tupleSize() - TUPLE_HEADER_SIZE);
+  memcpy(undo->oldTup->data, tup->data,
+         table_store->tupleSize() - TUPLE_HEADER_SIZE);
   undo->curTup = tup;
   undoStack_.push(undo);
 }
 
-void Transaction::begin() {
-  inTransaction_ = true;
-}
+void Transaction::begin() { inTransaction_ = true; }
 
 void Transaction::rollback() {
   while (!undoStack_.empty()) {
@@ -43,7 +42,8 @@ void Transaction::rollback() {
         table_store->recoverTuple(undo->oldTup);
         break;
       case kUpdateUndo:
-        memcpy(undo->curTup->data, undo->oldTup->data, table_store->tupleSize() - TUPLE_HEADER_SIZE);
+        memcpy(undo->curTup->data, undo->oldTup->data,
+               table_store->tupleSize() - TUPLE_HEADER_SIZE);
         break;
       default:
         break;
@@ -66,4 +66,4 @@ void Transaction::commit() {
   inTransaction_ = false;
 }
 
-} // namespace bydb
+}  // namespace bydb

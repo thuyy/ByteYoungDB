@@ -26,8 +26,9 @@ Plan* Optimizer::createPlanTree(const SQLStatement* stmt) {
     case kStmtShow:
       return createShowPlanTree(static_cast<const ShowStatement*>(stmt));
     default:
-      std::cout << "[BYDB-Error]  Statement type " << StmtTypeToString(stmt->type())
-                << " is not supported now." << std::endl;
+      std::cout << "[BYDB-Error]  Statement type "
+                << StmtTypeToString(stmt->type()) << " is not supported now."
+                << std::endl;
   }
   return nullptr;
 }
@@ -143,9 +144,10 @@ Plan* Optimizer::createDeletePlanTree(const DeleteStatement* stmt) {
 }
 
 Plan* Optimizer::createSelectPlanTree(const SelectStatement* stmt) {
-  Table* table = g_meta_data.getTable(stmt->fromTable->schema, stmt->fromTable->name);
+  Table* table =
+      g_meta_data.getTable(stmt->fromTable->schema, stmt->fromTable->name);
   std::vector<ColumnDefinition*>* columns = table->columns();
-  Plan *plan;
+  Plan* plan;
 
   ScanPlan* scan = new ScanPlan();
   scan->type = kSeqScan;
@@ -183,7 +185,8 @@ Plan* Optimizer::createSelectPlanTree(const SelectStatement* stmt) {
   return select;
 }
 
-Plan* Optimizer::createFilterPlan(std::vector<ColumnDefinition*>* columns, Expr* where) {
+Plan* Optimizer::createFilterPlan(std::vector<ColumnDefinition*>* columns,
+                                  Expr* where) {
   FilterPlan* filter = new FilterPlan();
   Expr* col = nullptr;
   Expr* val = nullptr;
@@ -195,7 +198,7 @@ Plan* Optimizer::createFilterPlan(std::vector<ColumnDefinition*>* columns, Expr*
     val = where->expr;
   }
 
-  for (size_t i = 0 ; i < columns->size(); i++) {
+  for (size_t i = 0; i < columns->size(); i++) {
     ColumnDefinition* col_def = (*columns)[i];
     if (strcmp(col->name, col_def->name) == 0) {
       filter->idx = i;
