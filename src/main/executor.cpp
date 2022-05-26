@@ -59,7 +59,7 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
       op = new ShowOperator(plan, next);
       break;
     default:
-      std::cout << "# ERROR: Not support plan node " << PlanTypeToString(plan->planType);
+      std::cout << "[BYDB-Error]  Not support plan node " << PlanTypeToString(plan->planType);
       break;
   }
 
@@ -73,12 +73,12 @@ bool CreateOperator::exec(TupleIter** iter) {
     Table* table = new Table(plan->schema, plan->tableName, plan->columns);
     if (g_meta_data.insertTable(table)) {
       if (plan->ifNotExists) {
-        std::cout << "# INFO: Table "
+        std::cout << "[BYDB-Info]  Table "
                   << TableNameToString(plan->schema, plan->tableName)
                   << " already existed." << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Table "
+        std::cout << "[BYDB-Error]  Table "
                   << TableNameToString(plan->schema, plan->tableName)
                   << " already existed." << std::endl;
         return true;
@@ -86,12 +86,12 @@ bool CreateOperator::exec(TupleIter** iter) {
       delete table;
     }
 
-    std::cout << "# INFO: Create table successfully." << std::endl;
+    std::cout << "[BYDB-Info]  Create table successfully." << std::endl;
     return false;
   } else if (plan->type == kCreateIndex) {
     Table* table = g_meta_data.getTable(plan->schema, plan->tableName);
     if (table == nullptr) {
-      std::cout << "# ERROR: Table "
+      std::cout << "[BYDB-Error]  Table "
                 << TableNameToString(plan->schema, plan->tableName)
                 << " did not exist." << std::endl;
       return true;
@@ -102,7 +102,7 @@ bool CreateOperator::exec(TupleIter** iter) {
       if (plan->ifNotExists) {
         return false;
       } else {
-        std::cout << "# ERROR: Index " << plan->indexName << " already existed."
+        std::cout << "[BYDB-Error]  Index " << plan->indexName << " already existed."
                   << std::endl;
         return true;
       }
@@ -112,9 +112,9 @@ bool CreateOperator::exec(TupleIter** iter) {
     index->name = plan->indexName;
     index->columns = *plan->indexColumns;
     table->addIndex(index);
-    std::cout << "# INFO: Create index successfully." << std::endl;
+    std::cout << "[BYDB-Info]  Create index successfully." << std::endl;
   } else {
-    std::cout << "# ERROR: Invalid 'Show' statement." << std::endl;
+    std::cout << "[BYDB-Error]  Invalid 'Show' statement." << std::endl;
     return true;
   }
 
@@ -126,52 +126,52 @@ bool DropOperator::exec(TupleIter** iter) {
   if (plan->type == kDropSchema) {
     if (g_meta_data.dropSchema(plan->schema)) {
       if (plan->ifExists) {
-        std::cout << "# INFO: Schema " << plan->schema << " did not exist."
+        std::cout << "[BYDB-Info]  Schema " << plan->schema << " did not exist."
                   << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Schema " << plan->schema << " did not exist."
+        std::cout << "[BYDB-Error]  Schema " << plan->schema << " did not exist."
                   << std::endl;
         return true;
       }
     }
 
-    std::cout << "# INFO: Drop schema successfully." << std::endl;
+    std::cout << "[BYDB-Info]  Drop schema successfully." << std::endl;
     return false;
   } else if (plan->type == kDropTable) {
     if (g_meta_data.dropTable(plan->schema, plan->name)) {
       if (plan->ifExists) {
-        std::cout << "# INFO: Table "
+        std::cout << "[BYDB-Info]  Table "
                   << TableNameToString(plan->schema, plan->name)
                   << " did not exist." << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Table "
+        std::cout << "[BYDB-Error]  Table "
                   << TableNameToString(plan->schema, plan->name)
                   << " did not exist." << std::endl;
         return true;
       }
     }
 
-    std::cout << "# INFO: Drop schema successfully." << std::endl;
+    std::cout << "[BYDB-Info]  Drop schema successfully." << std::endl;
     return false;
   } else if (plan->type == kDropIndex) {
     if (g_meta_data.dropIndex(plan->schema, plan->name, plan->indexName)) {
       if (plan->ifExists) {
-        std::cout << "# INFO: Index " << plan->indexName << " did not exist."
+        std::cout << "[BYDB-Info]  Index " << plan->indexName << " did not exist."
                   << std::endl;
         return false;
       } else {
-        std::cout << "# ERROR: Index " << plan->indexName << " did not exist."
+        std::cout << "[BYDB-Error]  Index " << plan->indexName << " did not exist."
                   << std::endl;
         return true;
       }
     }
 
-    std::cout << "# INFO: Drop index successfully." << std::endl;
+    std::cout << "[BYDB-Info]  Drop index successfully." << std::endl;
     return false;
   } else {
-    std::cout << "# ERROR: Invalid 'Drop' statement." << std::endl;
+    std::cout << "[BYDB-Error]  Invalid 'Drop' statement." << std::endl;
     return true;
   }
 
@@ -184,7 +184,7 @@ bool InsertOperator::exec(TupleIter** iter) {
   if (table_store->insertTuple(plan->values)) {
     return true;
   }
-  std::cout << "# INFO: Insert tuple successfully." << std::endl;
+  std::cout << "[BYDB-Info]  Insert tuple successfully." << std::endl;
   return false;
 }
 
@@ -209,7 +209,7 @@ bool UpdateOperator::exec(TupleIter** iter) {
   }
 
 
-  std::cout << "# INFO: Update " << upd_cnt << " tuple successfully." << std::endl;
+  std::cout << "[BYDB-Info]  Update " << upd_cnt << " tuple successfully." << std::endl;
   return false;
 }
 
@@ -232,7 +232,7 @@ bool DeleteOperator::exec(TupleIter** iter) {
     }
   }
 
-  std::cout << "# INFO: Delete " << del_cnt << " tuple successfully." << std::endl;
+  std::cout << "[BYDB-Info]  Delete " << del_cnt << " tuple successfully." << std::endl;
   return false;
 }
 
@@ -241,15 +241,15 @@ bool TrxOperator::exec(TupleIter** iter) {
   switch (plan->command) {
     case kBeginTransaction:
       g_transaction.begin();
-      std::cout << "# INFO: Start transaction" << std::endl;
+      std::cout << "[BYDB-Info]  Start transaction" << std::endl;
       break;
     case kCommitTransaction:
       g_transaction.commit();
-      std::cout << "# INFO: Commit transaction" << std::endl;
+      std::cout << "[BYDB-Info]  Commit transaction" << std::endl;
       break;
     case kRollbackTransaction:
       g_transaction.rollback();
-      std::cout << "# INFO: Rollback transaction" << std::endl;
+      std::cout << "[BYDB-Info]  Rollback transaction" << std::endl;
       break;
     default:
       break;
@@ -272,7 +272,7 @@ bool ShowOperator::exec(TupleIter** iter) {
   } else if (show_plan->type == kShowColumns) {
     Table* table = g_meta_data.getTable(show_plan->schema, show_plan->name);
     if (table == nullptr) {
-      std::cout << "# ERROR: Failed to find table "
+      std::cout << "[BYDB-Error]  Failed to find table "
                 << TableNameToString(show_plan->schema, show_plan->name)
                 << std::endl;
       return true;
@@ -292,7 +292,7 @@ bool ShowOperator::exec(TupleIter** iter) {
       }
     }
   } else {
-    std::cout << "# ERROR: Invalid 'Show' statement." << std::endl;
+    std::cout << "[BYDB-Error]  Invalid 'Show' statement." << std::endl;
     return true;
   }
 

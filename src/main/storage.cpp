@@ -149,7 +149,7 @@ bool TableStore::newTupleGroup() {
       static_cast<Tuple*>(malloc(tupleSize_ * TUPLE_GROUP_SIZE));
   memset(tuple_group, 0, (tupleSize_ * TUPLE_GROUP_SIZE));
   if (tuple_group == nullptr) {
-    std::cout << "# ERROR: Failed to malloc " << tupleSize_ * TUPLE_GROUP_SIZE
+    std::cout << "[BYDB-Error]  Failed to malloc " << tupleSize_ * TUPLE_GROUP_SIZE
               << " bytes";
     return true;
   }

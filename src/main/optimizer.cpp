@@ -26,7 +26,7 @@ Plan* Optimizer::createPlanTree(const SQLStatement* stmt) {
     case kStmtShow:
       return createShowPlanTree(static_cast<const ShowStatement*>(stmt));
     default:
-      std::cout << "# ERROR: Statement type " << StmtTypeToString(stmt->type())
+      std::cout << "[BYDB-Error]  Statement type " << StmtTypeToString(stmt->type())
                 << " is not supported now." << std::endl;
   }
   return nullptr;

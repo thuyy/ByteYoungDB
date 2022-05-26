@@ -76,7 +76,7 @@ bool MetaData::insertTable(Table* table) {
 bool MetaData::dropIndex(char* schema, char* name, char* indexName) {
   Table* table = getTable(schema, name);
   if (table == nullptr) {
-    std::cout << "# ERROR: Table " << TableNameToString(schema, name)
+    std::cout << "[BYDB-Error]  Table " << TableNameToString(schema, name)
               << " did not exist!" << std::endl;
     return true;
   }
@@ -113,7 +113,7 @@ bool MetaData::dropSchema(char* schema) {
   while (iter != table_map_.end()) {
     Table* table = iter->second;
     if (strcmp(table->schema(), schema) == 0) {
-      std::cout << "# INFO: Drop table " << table->name() << " in schema "
+      std::cout << "[BYDB-Info]  Drop table " << table->name() << " in schema "
                 << schema << std::endl;
       iter = table_map_.erase(iter);
       delete table;
@@ -168,7 +168,7 @@ Table* MetaData::getTable(char* schema, char* name) {
 Index* MetaData::getIndex(char* schema, char* name, char* index_name) {
   Table* table = getTable(schema, name);
   if (table == nullptr) {
-    std::cout << "# ERROR: Table " << TableNameToString(schema, name)
+    std::cout << "[BYDB-Error]  Table " << TableNameToString(schema, name)
               << " did not exist!" << std::endl;
     return nullptr;
   }
