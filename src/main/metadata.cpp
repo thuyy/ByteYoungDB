@@ -9,8 +9,7 @@ namespace bydb {
 
 MetaData g_meta_data;
 
-Table::Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns)
-    : tableStore_(columns) {
+Table::Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns) {
   schema_ = strdup(schema);
   name_ = strdup(name);
   for (auto col_old : *columns) {
@@ -22,11 +21,14 @@ Table::Table(char* schema, char* name, std::vector<ColumnDefinition*>* columns)
     col->nullable = col_old->nullable;
     columns_.push_back(col);
   }
+
+  tableStore_ = new TableStore(&columns_);
 }
 
 Table::~Table() {
   free(schema_);
   free(name_);
+  delete tableStore_;
   for (auto col : columns_) {
     delete col;
   }

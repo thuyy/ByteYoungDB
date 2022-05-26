@@ -190,6 +190,7 @@ add one more byte for the symbol
 #define MAX_INT64_LEN 20
 
 void PrintTuples(std::vector<ColumnDefinition*>& columns,
+                 std::vector<size_t>& colIds,
                  std::vector<std::vector<Expr*>>& tuples) {
   /* Calculate offset and length for each column */
   size_t total_len = 0;
@@ -219,10 +220,9 @@ void PrintTuples(std::vector<ColumnDefinition*>& columns,
 
   /* Print each tuple */
   for (auto tup : tuples) {
-    int i = 0;
-    for (auto expr : tup) {
+    for (size_t i = 0; i < columns.size(); i++) {
+      Expr *expr = tup[colIds[i]];
       std::cout.width(col_lens[i]);
-      i++;
       switch (expr->type) {
         case kExprLiteralString:
           std::cout << expr->name;
@@ -239,6 +239,10 @@ void PrintTuples(std::vector<ColumnDefinition*>& columns,
     }
     std::cout << std::endl;
   }
+
+  /* Print separators */
+  std::cout << std::string(total_len, '-') << std::endl;
+  std::cout << tuples.size() << " row" << std::endl;
 }
 
 }  // namespace bydb

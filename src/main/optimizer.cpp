@@ -98,8 +98,45 @@ Plan* Optimizer::createDeletePlanTree(const DeleteStatement* stmt) {
 }
 
 Plan* Optimizer::createSelectPlanTree(const SelectStatement* stmt) {
-  SelectPlan* plan = new SelectPlan();
-  return plan;
+  Table* table = g_meta_data.getTable(stmt->fromTable->schema, stmt->fromTable->name);
+  std::vector<ColumnDefinition*>* columns = table->columns();
+  Plan *plan;
+
+  ScanPlan* scanplan = new ScanPlan();
+  scanplan->type = kSeqScan;
+  scanplan->table = table;
+  plan = scanplan;
+
+  if (stmt->whereClause != nullptr) {
+    FilterPlan* filterplan = new FilterPlan();
+    filterplan->whereClause = stmt->whereClause;
+    filterplan->next = plan;
+    plan = filterplan;
+  }
+
+  SelectPlan* selectplan = new SelectPlan();
+  selectplan->table = table;
+  selectplan->next = plan;
+
+  for (auto expr : *stmt->selectList) {
+    if (expr->type == kExprStar) {
+      for (size_t i = 0; i < columns->size(); i++) {
+        ColumnDefinition* col = (*columns)[i];
+        selectplan->outCols.push_back(col);
+        selectplan->colIds.push_back(i);
+      }
+    } else {
+      for (size_t i = 0; i < columns->size(); i++) {
+        ColumnDefinition* col = (*columns)[i];
+        if (strcmp(expr->name, col->name) == 0) {
+          selectplan->outCols.push_back(col);
+          selectplan->colIds.push_back(i);
+        }
+      }
+    }
+  }
+
+  return selectplan;
 }
 
 Plan* Optimizer::createTrxPlanTree(const TransactionStatement* stmt) {
@@ -115,30 +152,4 @@ Plan* Optimizer::createShowPlanTree(const ShowStatement* stmt) {
   plan->next = nullptr;
   return plan;
 }
-
-Plan* Optimizer::createScanPlan() {
-  ScanPlan* plan = new ScanPlan();
-  return plan;
-}
-
-Plan* Optimizer::createFileterPlan() {
-  FilterPlan* plan = new FilterPlan();
-  return plan;
-}
-
-Plan* Optimizer::createProjdctionPlan() {
-  ProjectionPlan* plan = new ProjectionPlan();
-  return plan;
-}
-
-Plan* Optimizer::createSortPlan() {
-  SortPlan* plan = new SortPlan();
-  return plan;
-}
-
-Plan* Optimizer::createLimitPlan() {
-  LimitPlan* plan = new LimitPlan();
-  return plan;
-}
-
 }  // namespace bydb

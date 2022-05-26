@@ -37,6 +37,7 @@ const char* PlanTypeToString(PlanType type);
 size_t ColumnTypeSize(ColumnType& type);
 
 void PrintTuples(std::vector<ColumnDefinition*>& columns,
+                 std::vector<size_t>& colIds,
                  std::vector<std::vector<Expr*>>& tuples);
 
 }  // namespace bydb

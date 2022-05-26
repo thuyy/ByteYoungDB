@@ -76,6 +76,8 @@ struct DeletePlan : public Plan {
 struct SelectPlan : public Plan {
   SelectPlan() : Plan(kSelect) {}
   Table* table;
+  std::vector<ColumnDefinition*> outCols;
+  std::vector<size_t> colIds;
 };
 
 enum ScanType { kSeqScan, kIndexScan };
@@ -84,20 +86,11 @@ struct ScanPlan : public Plan {
   ScanPlan() : Plan(kScan) {}
   ScanType type;
   Table* table;
-  Index* index;
-  Expr* indexCond;
 };
 
 struct FilterPlan : public Plan {
   FilterPlan() : Plan(kFilter) {}
   Expr* whereClause;
-};
-
-struct ProjectionPlan : public Plan {
-  ProjectionPlan() : Plan(kProjection) {}
-  Table* table;
-  std::vector<Expr*>* inputList;
-  std::vector<Expr*>* outputList;
 };
 
 struct SortPlan : public Plan {
@@ -146,16 +139,6 @@ class Optimizer {
   Plan* createTrxPlanTree(const TransactionStatement* stmt);
 
   Plan* createShowPlanTree(const ShowStatement* stmt);
-
-  Plan* createScanPlan();
-
-  Plan* createFileterPlan();
-
-  Plan* createSortPlan();
-
-  Plan* createLimitPlan();
-
-  Plan* createProjdctionPlan();
 };
 
 }  // namespace bydb

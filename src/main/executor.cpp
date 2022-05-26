@@ -48,9 +48,6 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
       }
       break;
     }
-    case kProjection:
-      op = new ProjectionOperator(plan, next);
-      break;
     case kFilter:
       op = new FilterOperator(plan, next);
       break;
@@ -233,7 +230,38 @@ bool ShowOperator::exec(std::vector<Expr*>* values) {
   return false;
 }
 
-bool SelectOperator::exec(std::vector<Expr*>* values) { return false; }
+bool SelectOperator::exec(std::vector<Expr*>* values) {
+  SelectPlan* plan = static_cast<SelectPlan*>(plan_);
+  std::vector<std::vector<Expr*>> tuples;
+  while (true) {
+    std::vector<Expr*> tup;
+    if (next_->exec(&tup)) {
+      releaseTuples(tuples);
+      return true;
+    }
+
+    if (tup.size() == 0) {
+      break;
+    } else {
+      tuples.push_back(tup);      
+    }
+  }
+
+  PrintTuples(plan->outCols, plan->colIds, tuples);
+  releaseTuples(tuples);
+
+  return false;  
+}
+
+void SelectOperator::releaseTuples(std::vector<std::vector<Expr*>> tuples) {
+  for (auto tup : tuples) {
+    for (auto expr : tup) {
+      delete expr;
+    }
+    tup.clear();
+  }
+  tuples.clear();
+}
 
 bool SeqScanOperator::exec(std::vector<Expr*>* values) {
   ScanPlan* plan = static_cast<ScanPlan*>(plan_);
@@ -249,7 +277,5 @@ bool SeqScanOperator::exec(std::vector<Expr*>* values) {
 }
 
 bool FilterOperator::exec(std::vector<Expr*>* values) { return false; }
-
-bool ProjectionOperator::exec(std::vector<Expr*>* values) { return false; }
 
 }  // namespace bydb

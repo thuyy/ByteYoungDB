@@ -67,6 +67,9 @@ class SelectOperator : public BaseOperator {
   SelectOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
   ~SelectOperator() {}
   bool exec(std::vector<Expr*>* values = nullptr) override;
+
+ private:
+  void releaseTuples(std::vector<std::vector<Expr*>> tuples);
 };
 
 class SeqScanOperator : public BaseOperator {
@@ -83,14 +86,6 @@ class FilterOperator : public BaseOperator {
  public:
   FilterOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
   ~FilterOperator() {}
-  bool exec(std::vector<Expr*>* values = nullptr) override;
-};
-
-class ProjectionOperator : public BaseOperator {
- public:
-  ProjectionOperator(Plan* plan, BaseOperator* next)
-      : BaseOperator(plan, next) {}
-  ~ProjectionOperator() {}
   bool exec(std::vector<Expr*>* values = nullptr) override;
 };
 
