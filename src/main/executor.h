@@ -86,12 +86,17 @@ class SelectOperator : public BaseOperator {
 
 class SeqScanOperator : public BaseOperator {
  public:
-  SeqScanOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next), curTuple_(nullptr) {}
-  ~SeqScanOperator() {}
+  SeqScanOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next), finish(false), nextTuple_(nullptr) {}
+  ~SeqScanOperator() {
+    for (auto iter : tuples_) {
+      delete iter;
+    }
+  }
   bool exec(TupleIter** iter = nullptr) override;
 
  private:
-  Tuple* curTuple_;
+  bool finish;
+  Tuple* nextTuple_;
   std::vector<TupleIter*> tuples_;
 };
 

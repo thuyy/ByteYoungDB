@@ -56,7 +56,6 @@ bool TableStore::insertTuple(std::vector<Expr*>* values) {
 }
 
 bool TableStore::deleteTuple(Tuple* tup) {
-  memset(tup, 0, tupleSize_);
   dataList_.delTuple(tup);
   freeList_.addHead(tup);
   return true;

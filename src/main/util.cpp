@@ -192,6 +192,11 @@ add one more byte for the symbol
 void PrintTuples(std::vector<ColumnDefinition*>& columns,
                  std::vector<size_t>& colIds,
                  std::vector<std::vector<Expr*>>& tuples) {
+  if (tuples.size() == 0) {
+    std::cout << "Empty set" << std::endl;
+    return;
+  }
+
   /* Calculate offset and length for each column */
   size_t total_len = 0;
   std::vector<size_t> col_lens;

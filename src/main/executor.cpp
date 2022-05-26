@@ -189,7 +189,28 @@ bool InsertOperator::exec(TupleIter** iter) {
 
 bool UpdateOperator::exec(TupleIter** iter) { return false; }
 
-bool DeleteOperator::exec(TupleIter** iter) { return false; }
+bool DeleteOperator::exec(TupleIter** iter) {
+  Table *table = static_cast<DeletePlan *>(plan_)->table;
+  TableStore *table_store = table->getTableStore();
+  int del_cnt = 0;
+
+  while (true) {
+    TupleIter* tup_iter = nullptr;
+    if (next_->exec(&tup_iter)) {
+      return true;
+    }
+
+    if (tup_iter == nullptr) {
+      break;
+    } else {
+      table_store->deleteTuple(tup_iter->tup);
+      del_cnt++;
+    }
+  }
+
+  std::cout << "# INFO: Delete " << del_cnt << " tuple successfully." << std::endl;
+  return false;
+}
 
 bool TrxOperator::exec(TupleIter** iter) { return false; }
 
@@ -257,16 +278,32 @@ bool SelectOperator::exec(TupleIter** iter) {
 bool SeqScanOperator::exec(TupleIter** iter) {
   ScanPlan* plan = static_cast<ScanPlan*>(plan_);
   TableStore* table_store = plan->table->getTableStore();
-  curTuple_ = table_store->seqScan(curTuple_);
-  if (curTuple_ == nullptr) {
-    *iter = nullptr;
+  Tuple* tup = nullptr;
+
+  if (finish) {
     return false;
-  } else {
-    TupleIter* tup_iter = new TupleIter(curTuple_);
-    table_store->parseTuple(curTuple_, tup_iter->values);
-    *iter = tup_iter;
   }
 
+  if (nextTuple_ == nullptr) {
+    tup = table_store->seqScan(nullptr);
+  } else {
+    tup = nextTuple_;
+  }
+
+  if (tup == nullptr) {
+    *iter = nullptr;
+    return false;
+  }
+
+  TupleIter* tup_iter = new TupleIter(tup);
+  table_store->parseTuple(tup, tup_iter->values);
+  tuples_.push_back(tup_iter);
+  *iter = tup_iter;
+
+  nextTuple_ = table_store->seqScan(tup);
+  if (nextTuple_ == nullptr) {
+    finish = true;
+  }
   return false;
 }
 

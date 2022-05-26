@@ -70,7 +70,6 @@ struct UpdatePlan : public Plan {
 struct DeletePlan : public Plan {
   DeletePlan() : Plan(kDelete) {}
   Table* table;
-  Expr* whereClause;
 };
 
 struct SelectPlan : public Plan {
@@ -136,6 +135,8 @@ class Optimizer {
   Plan* createDeletePlanTree(const DeleteStatement* stmt);
 
   Plan* createSelectPlanTree(const SelectStatement* stmt);
+
+  Plan* createFilterPlan(std::vector<ColumnDefinition*>* columns, Expr* where);
 
   Plan* createTrxPlanTree(const TransactionStatement* stmt);
 
