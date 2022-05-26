@@ -1,7 +1,6 @@
 set(BYTE_YOUNG_SRC
   main.cpp
   executor.cpp
-  index.cpp
   metadata.cpp
   optimizer.cpp
   parser.cpp

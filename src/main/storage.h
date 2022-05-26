@@ -15,13 +15,10 @@ namespace bydb {
 #define TUPLE_GROUP_SIZE 100
 
 typedef unsigned char uchar;
-typedef uint64_t trx_id_t;
 
 struct Tuple {
   Tuple* prev;
   Tuple* next;
-  trx_id_t trx_id;
-  bool is_free;
   uchar data[];
 };
 
@@ -53,6 +50,13 @@ public:
     tup->prev = nullptr;
   }
 
+  Tuple* getHead() {
+    if (head_->next == tail_) {
+      return nullptr;
+    }
+    return head_->next;
+  }
+
   Tuple* popHead() {
     if (head_->next == tail_) {
       return nullptr;
@@ -81,8 +85,7 @@ class TableStore {
   bool deleteTuple(Tuple* tup);
   bool updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates);
 
-  void seqScan();
-  void indexScan();
+  Tuple* seqScan();
 
  private:
   bool newTupleGroup();
