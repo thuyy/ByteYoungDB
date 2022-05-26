@@ -89,8 +89,9 @@ struct ScanPlan : public Plan {
 };
 
 struct FilterPlan : public Plan {
-  FilterPlan() : Plan(kFilter) {}
-  Expr* whereClause;
+  FilterPlan() : Plan(kFilter), idx(0), val(nullptr) {}
+  size_t idx;
+  Expr* val;
 };
 
 struct SortPlan : public Plan {

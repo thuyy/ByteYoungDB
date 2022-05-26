@@ -90,7 +90,7 @@ class TableStore {
   bool updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates);
 
   Tuple* seqScan(Tuple* tup);
-  void parseTuple(Tuple* tup, std::vector<Expr*>* values);
+  void parseTuple(Tuple* tup, std::vector<Expr*>& values);
 
  private:
   bool newTupleGroup();

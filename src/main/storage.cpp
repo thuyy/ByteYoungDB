@@ -87,7 +87,7 @@ Tuple* TableStore::seqScan(Tuple* tup) {
   }
 }
 
-void TableStore::parseTuple(Tuple* tup, std::vector<Expr*>* values) {
+void TableStore::parseTuple(Tuple* tup, std::vector<Expr*>& values) {
   bool* is_null = reinterpret_cast<bool*>(&tup->data[0]);
   uchar* data = tup->data + columns_->size();
 
@@ -95,7 +95,7 @@ void TableStore::parseTuple(Tuple* tup, std::vector<Expr*>* values) {
     Expr* e = nullptr;
     if (is_null[i]) {
       e = Expr::makeNullLiteral();
-      values->push_back(e);
+      values.push_back(e);
       continue;
     }
 
@@ -123,7 +123,7 @@ void TableStore::parseTuple(Tuple* tup, std::vector<Expr*>* values) {
       default:
         break;
     }
-    values->push_back(e);
+    values.push_back(e);
   }
 }
 

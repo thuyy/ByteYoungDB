@@ -109,7 +109,24 @@ Plan* Optimizer::createSelectPlanTree(const SelectStatement* stmt) {
 
   if (stmt->whereClause != nullptr) {
     FilterPlan* filterplan = new FilterPlan();
-    filterplan->whereClause = stmt->whereClause;
+    Expr* where = stmt->whereClause;
+    Expr* col = nullptr;
+    Expr* val = nullptr;
+    if (where->expr->type == kExprColumnRef) {
+      col = where->expr;
+      val = where->expr2;
+    } else {
+      col = where->expr2;
+      val = where->expr;
+    }
+
+    for (size_t i = 0 ; i < columns->size(); i++) {
+      ColumnDefinition* col_def = (*columns)[i];
+      if (strcmp(col->name, col_def->name) == 0) {
+        filterplan->idx = i;
+      }
+    }
+    filterplan->val = val;
     filterplan->next = plan;
     plan = filterplan;
   }
