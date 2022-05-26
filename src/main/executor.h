@@ -69,14 +69,6 @@ class SelectOperator : public BaseOperator {
   bool exec() override;
 };
 
-class IndexScanOperator : public BaseOperator {
- public:
-  IndexScanOperator(Plan* plan, BaseOperator* next)
-      : BaseOperator(plan, next) {}
-  ~IndexScanOperator() {}
-  bool exec() override;
-};
-
 class SeqScanOperator : public BaseOperator {
  public:
   SeqScanOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
@@ -88,20 +80,6 @@ class FilterOperator : public BaseOperator {
  public:
   FilterOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
   ~FilterOperator() {}
-  bool exec() override;
-};
-
-class SortOperator : public BaseOperator {
- public:
-  SortOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
-  ~SortOperator() {}
-  bool exec() override;
-};
-
-class LimitOperator : public BaseOperator {
- public:
-  LimitOperator(Plan* plan, BaseOperator* next) : BaseOperator(plan, next) {}
-  ~LimitOperator() {}
   bool exec() override;
 };
 

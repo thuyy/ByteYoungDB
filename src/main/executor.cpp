@@ -45,8 +45,6 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
       ScanPlan* scan_plan = static_cast<ScanPlan*>(plan);
       if (scan_plan->type == kSeqScan) {
         op = new SeqScanOperator(plan, next);
-      } else if (scan_plan->type == kIndexScan) {
-        op = new IndexScanOperator(plan, next);
       }
       break;
     }
@@ -56,12 +54,6 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
     case kFilter:
       op = new FilterOperator(plan, next);
       break;
-    case kSort:
-      op = new SortOperator(plan, next);
-      break;
-    case kLimit:
-      op = new LimitOperator(plan, next);
-      break;
     case kTrx:
       op = new TrxOperator(plan, next);
       break;
@@ -69,6 +61,7 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
       op = new ShowOperator(plan, next);
       break;
     default:
+      std::cout << "# ERROR: Not support plan node " << PlanTypeToString(plan->planType);
       break;
   }
 
@@ -242,15 +235,9 @@ bool ShowOperator::exec() {
 
 bool SelectOperator::exec() { return false; }
 
-bool IndexScanOperator::exec() { return false; }
-
 bool SeqScanOperator::exec() { return false; }
 
 bool FilterOperator::exec() { return false; }
-
-bool SortOperator::exec() { return false; }
-
-bool LimitOperator::exec() { return false; }
 
 bool ProjectionOperator::exec() { return false; }
 

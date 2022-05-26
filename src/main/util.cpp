@@ -133,6 +133,39 @@ const char* ExprTypeToString(ExprType type) {
   }
 }
 
+const char* PlanTypeToString(PlanType type) {
+  switch (type) {
+    case kCreate:
+      return "Create";
+    case kDrop:
+      return "Drop";
+    case kInsert:
+      return "Insert";
+    case kUpdate:
+      return "Update";
+    case kDelete:
+      return "Delete";
+    case kSelect:
+      return "Select";
+    case kScan:
+      return "Scan";
+    case kProjection:
+      return "Projection";
+    case kFilter:
+      return "Filter";
+    case kSort:
+      return "Sort";
+    case kLimit:
+      return "Limit";
+    case kTrx:
+      return "Trx";
+    case kShow:
+      return "Show";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 size_t ColumnTypeSize(ColumnType& type) {
   switch (type.data_type) {
     case DataType::INT:

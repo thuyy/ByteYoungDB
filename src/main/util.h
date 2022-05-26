@@ -1,5 +1,6 @@
 #pragma once
 
+#include "optimizer.h"
 #include "storage.h"
 
 #include "sql/ColumnType.h"
@@ -31,6 +32,7 @@ const char* StmtTypeToString(StatementType type);
 const char* DataTypeToString(DataType type);
 const char* DropTypeToString(DropType type);
 const char* ExprTypeToString(ExprType type);
+const char* PlanTypeToString(PlanType type);
 
 size_t ColumnTypeSize(ColumnType& type);
 
