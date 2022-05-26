@@ -208,6 +208,7 @@ Plan* Optimizer::createFilterPlan(std::vector<ColumnDefinition*>* columns, Expr*
 
 Plan* Optimizer::createTrxPlanTree(const TransactionStatement* stmt) {
   TrxPlan* plan = new TrxPlan();
+  plan->command = stmt->command;
   return plan;
 }
 

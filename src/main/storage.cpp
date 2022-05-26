@@ -1,4 +1,5 @@
 #include "storage.h"
+#include "trx.h"
 #include "util.h"
 
 #include "sql/ColumnType.h"
@@ -13,7 +14,7 @@ using namespace hsql;
 namespace bydb {
 
 TableStore::TableStore(std::vector<ColumnDefinition*>* columns)
-    : colNum_(columns->size()), tupleSize_(0), rowCount_(0), columns_(columns) {
+    : colNum_(columns->size()), tupleSize_(0), columns_(columns) {
   colOffset_.push_back(0);
 
   // Add space for each columns
@@ -26,7 +27,7 @@ TableStore::TableStore(std::vector<ColumnDefinition*>* columns)
   tupleSize_ += colNum_;
 
   // Add space for header
-  tupleSize_ += sizeof(Tuple*) * 2;
+  tupleSize_ += TUPLE_HEADER_SIZE;
 }
 
 TableStore::~TableStore() {
@@ -51,17 +52,41 @@ bool TableStore::insertTuple(std::vector<Expr*>* values) {
     idx++;
   }
 
-  rowCount_++;
+  if (g_transaction.inTransaction()) {
+    g_transaction.addInsertUndo(this, tup);
+  }
+
   return false;
 }
 
 bool TableStore::deleteTuple(Tuple* tup) {
   dataList_.delTuple(tup);
   freeList_.addHead(tup);
+  if (g_transaction.inTransaction()) {
+    g_transaction.addDeleteUndo(this, tup);
+  }
+
   return true;
 }
 
+void TableStore::removeTuple(Tuple* tup) {
+  dataList_.delTuple(tup);
+  freeList_.addHead(tup);
+}
+
+void TableStore::recoverTuple(Tuple *tup) {
+  dataList_.addHead(tup);
+}
+
+void TableStore::freeTuple(Tuple* tup) {
+  freeList_.addHead(tup);
+}
+
 bool TableStore::updateTuple(Tuple* tup, std::vector<size_t>& idxs, std::vector<Expr*>& values) {
+  if (g_transaction.inTransaction()) {
+    g_transaction.addUpdateUndo(this, tup);
+  }
+
   for (size_t i = 0; i < idxs.size(); i++) {
     size_t idx = idxs[i];
     Expr* expr = values[i];

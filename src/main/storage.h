@@ -13,8 +13,10 @@ using namespace hsql;
 namespace bydb {
 
 #define TUPLE_GROUP_SIZE 100
+#define TUPLE_HEADER_SIZE 16
 
 typedef unsigned char uchar;
+
 
 struct Tuple {
   Tuple* prev;
@@ -89,8 +91,14 @@ class TableStore {
   bool deleteTuple(Tuple* tup);
   bool updateTuple(Tuple* tup, std::vector<size_t>& idxs, std::vector<Expr*>& values);
 
+  void removeTuple(Tuple* tup);
+  void recoverTuple(Tuple *tup);
+  void freeTuple(Tuple* tup);
+
   Tuple* seqScan(Tuple* tup);
   void parseTuple(Tuple* tup, std::vector<Expr*>& values);
+
+  int tupleSize() { return tupleSize_; }
 
  private:
   bool newTupleGroup();
@@ -98,7 +106,6 @@ class TableStore {
 
   int colNum_;
   int tupleSize_;
-  uint64_t rowCount_;
 
   std::vector<ColumnDefinition*>* columns_;
   std::vector<int> colOffset_;

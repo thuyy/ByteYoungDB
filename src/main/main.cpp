@@ -55,6 +55,7 @@ int main(int argc, char* argv[]) {
     if (ExecStmt(cmd)) {
       std::cout << "# ERROR: Failed to execute '" << cmd << "'" << std::endl;
     }
+    std::cout << std::endl;
   }
 
   std::cout << "# Farewell~~~ " << std::endl;

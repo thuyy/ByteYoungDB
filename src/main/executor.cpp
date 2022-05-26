@@ -1,6 +1,7 @@
 #include "executor.h"
 #include "metadata.h"
 #include "optimizer.h"
+#include "trx.h"
 #include "util.h"
 
 #include <iostream>
@@ -235,7 +236,27 @@ bool DeleteOperator::exec(TupleIter** iter) {
   return false;
 }
 
-bool TrxOperator::exec(TupleIter** iter) { return false; }
+bool TrxOperator::exec(TupleIter** iter) {
+  TrxPlan* plan = static_cast<TrxPlan*>(plan_);
+  switch (plan->command) {
+    case kBeginTransaction:
+      g_transaction.begin();
+      std::cout << "# INFO: Start transaction" << std::endl;
+      break;
+    case kCommitTransaction:
+      g_transaction.commit();
+      std::cout << "# INFO: Commit transaction" << std::endl;
+      break;
+    case kRollbackTransaction:
+      g_transaction.rollback();
+      std::cout << "# INFO: Rollback transaction" << std::endl;
+      break;
+    default:
+      break;
+  }
+
+  return false;
+}
 
 bool ShowOperator::exec(TupleIter** iter) {
   ShowPlan* show_plan = static_cast<ShowPlan*>(plan_);
