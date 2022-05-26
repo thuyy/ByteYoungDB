@@ -64,7 +64,8 @@ struct InsertPlan : public Plan {
 struct UpdatePlan : public Plan {
   UpdatePlan() : Plan(kUpdate) {}
   Table* table;
-  std::vector<UpdateClause*>* updates;
+  std::vector<Expr*> values;
+  std::vector<size_t> idxs;
 };
 
 struct DeletePlan : public Plan {

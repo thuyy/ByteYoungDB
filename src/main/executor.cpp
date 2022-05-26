@@ -187,7 +187,30 @@ bool InsertOperator::exec(TupleIter** iter) {
   return false;
 }
 
-bool UpdateOperator::exec(TupleIter** iter) { return false; }
+bool UpdateOperator::exec(TupleIter** iter) {
+  UpdatePlan* update = static_cast<UpdatePlan *>(plan_);
+  Table *table = update->table;
+  TableStore *table_store = table->getTableStore();
+  int upd_cnt = 0;
+
+  while (true) {
+    TupleIter* tup_iter = nullptr;
+    if (next_->exec(&tup_iter)) {
+      return true;
+    }
+
+    if (tup_iter == nullptr) {
+      break;
+    } else {
+      table_store->updateTuple(tup_iter->tup, update->idxs, update->values);
+      upd_cnt++;
+    }
+  }
+
+
+  std::cout << "# INFO: Update " << upd_cnt << " tuple successfully." << std::endl;
+  return false;
+}
 
 bool DeleteOperator::exec(TupleIter** iter) {
   Table *table = static_cast<DeletePlan *>(plan_)->table;

@@ -88,8 +88,37 @@ Plan* Optimizer::createInsertPlanTree(const InsertStatement* stmt) {
 }
 
 Plan* Optimizer::createUpdatePlanTree(const UpdateStatement* stmt) {
-  UpdatePlan* plan = new UpdatePlan();
-  return plan;
+  Table* table = g_meta_data.getTable(stmt->table->schema, stmt->table->name);
+  Plan* plan;
+
+  ScanPlan* scan = new ScanPlan();
+  scan->type = kSeqScan;
+  scan->table = table;
+  plan = scan;
+
+  if (stmt->where != nullptr) {
+    Plan* filter = createFilterPlan(table->columns(), stmt->where);
+    filter->next = plan;
+    plan = filter;
+  }
+
+  UpdatePlan* update = new UpdatePlan();
+  update->table = table;
+  update->next = plan;
+
+  for (auto upd : *stmt->updates) {
+    size_t idx = 0;
+    update->values.push_back(upd->value);
+    for (auto col : *table->columns()) {
+      if (strcmp(upd->column, col->name) == 0) {
+        update->idxs.push_back(idx);
+        break;
+      }
+      idx++;
+    }
+  }
+
+  return update;
 }
 
 Plan* Optimizer::createDeletePlanTree(const DeleteStatement* stmt) {

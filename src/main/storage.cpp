@@ -61,18 +61,11 @@ bool TableStore::deleteTuple(Tuple* tup) {
   return true;
 }
 
-bool TableStore::updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates) {
-  //tup->trx_id = NewTrxId();
-
-  for (auto upd : *updates) {
-    size_t idx = 0;
-    for (auto col : *columns_) {
-      if (strcmp(upd->column, col->name) == 0) {
-        break;
-      }
-      idx++;
-    }
-    setColValue(tup, idx, upd->value);
+bool TableStore::updateTuple(Tuple* tup, std::vector<size_t>& idxs, std::vector<Expr*>& values) {
+  for (size_t i = 0; i < idxs.size(); i++) {
+    size_t idx = idxs[i];
+    Expr* expr = values[i];
+    setColValue(tup, idx, expr);
   }
 
   return false;

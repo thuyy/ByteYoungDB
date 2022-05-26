@@ -87,7 +87,7 @@ class TableStore {
 
   bool insertTuple(std::vector<Expr*>* values);
   bool deleteTuple(Tuple* tup);
-  bool updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates);
+  bool updateTuple(Tuple* tup, std::vector<size_t>& idxs, std::vector<Expr*>& values);
 
   Tuple* seqScan(Tuple* tup);
   void parseTuple(Tuple* tup, std::vector<Expr*>& values);
