@@ -50,13 +50,6 @@ public:
     tup->prev = nullptr;
   }
 
-  Tuple* getHead() {
-    if (head_->next == tail_) {
-      return nullptr;
-    }
-    return head_->next;
-  }
-
   Tuple* popHead() {
     if (head_->next == tail_) {
       return nullptr;
@@ -65,6 +58,17 @@ public:
     Tuple* tup = head_->next;
     delTuple(tup);
     return tup;
+  }
+
+  Tuple* getHead() {
+    if (head_->next == tail_) {
+      return nullptr;
+    }
+    return head_->next;
+  }
+
+  Tuple* getNext(Tuple* tup) {
+    return (tup->next == tail_) ? nullptr : tup->next;
   }
 
   bool isEmpty() {
@@ -85,7 +89,8 @@ class TableStore {
   bool deleteTuple(Tuple* tup);
   bool updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates);
 
-  Tuple* seqScan();
+  Tuple* seqScan(Tuple* tup);
+  void parseTuple(Tuple* tup, std::vector<Expr*>* values);
 
  private:
   bool newTupleGroup();

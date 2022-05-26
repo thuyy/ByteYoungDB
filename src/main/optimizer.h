@@ -84,7 +84,6 @@ struct ScanPlan : public Plan {
   ScanPlan() : Plan(kScan) {}
   ScanType type;
   Table* table;
-  std::vector<Expr*>* scanList;
   Index* index;
   Expr* indexCond;
 };

@@ -2,6 +2,7 @@
 #include "util.h"
 
 #include "sql/ColumnType.h"
+#include "sql/Expr.h"
 
 #include <cstdint>
 #include <cstring>
@@ -78,8 +79,52 @@ bool TableStore::updateTuple(Tuple* tup, std::vector<UpdateClause*>* updates) {
   return false;
 }
 
-Tuple* TableStore::seqScan() {
-  return dataList_.getHead();
+Tuple* TableStore::seqScan(Tuple* tup) {
+  if (tup == nullptr) {
+    return dataList_.getHead();
+  } else {
+    return dataList_.getNext(tup);
+  }
+}
+
+void TableStore::parseTuple(Tuple* tup, std::vector<Expr*>* values) {
+  bool* is_null = reinterpret_cast<bool*>(&tup->data[0]);
+  uchar* data = tup->data + columns_->size();
+
+  for (size_t i = 0; i < columns_->size(); i++) {
+    Expr* e = nullptr;
+    if (is_null[i]) {
+      e = Expr::makeNullLiteral();
+      values->push_back(e);
+      continue;
+    }
+
+    ColumnDefinition* col = (*columns_)[i];
+    int offset = colOffset_[i];
+    int size = colOffset_[i + 1] - colOffset_[i];
+    switch (col->type.data_type) {
+      case DataType::INT: {
+        int64_t val = *reinterpret_cast<int32_t*>(data + offset);
+        e = Expr::makeLiteral(val);
+        break;
+      }
+      case DataType::LONG: {
+        int64_t val = *reinterpret_cast<int64_t*>(data + offset);
+        e = Expr::makeLiteral(val);
+        break;
+      }
+      case DataType::CHAR:
+      case DataType::VARCHAR: {
+        char* val = static_cast<char*>(malloc(size));
+        memcpy(val, (data + offset), size);
+        e = Expr::makeLiteral(val);
+        break;
+      }
+      default:
+        break;
+    }
+    values->push_back(e);
+  }
 }
 
 bool TableStore::newTupleGroup() {

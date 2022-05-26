@@ -68,7 +68,7 @@ BaseOperator* Executor::generateOperator(Plan* plan) {
   return op;
 }
 
-bool CreateOperator::exec() {
+bool CreateOperator::exec(std::vector<Expr*>* values) {
   CreatePlan* plan = static_cast<CreatePlan*>(plan_);
 
   if (plan->type == kCreateTable) {
@@ -123,7 +123,7 @@ bool CreateOperator::exec() {
   return false;
 }
 
-bool DropOperator::exec() {
+bool DropOperator::exec(std::vector<Expr*>* values) {
   DropPlan* plan = static_cast<DropPlan*>(plan_);
   if (plan->type == kDropSchema) {
     if (g_meta_data.dropSchema(plan->schema)) {
@@ -180,19 +180,19 @@ bool DropOperator::exec() {
   return false;
 }
 
-bool InsertOperator::exec() {
+bool InsertOperator::exec(std::vector<Expr*>* values) {
   InsertPlan* plan = static_cast<InsertPlan*>(plan_);
   TableStore* table_store = plan->table->getTableStore();
   return table_store->insertTuple(plan->values);
 }
 
-bool UpdateOperator::exec() { return false; }
+bool UpdateOperator::exec(std::vector<Expr*>* values) { return false; }
 
-bool DeleteOperator::exec() { return false; }
+bool DeleteOperator::exec(std::vector<Expr*>* values) { return false; }
 
-bool TrxOperator::exec() { return false; }
+bool TrxOperator::exec(std::vector<Expr*>* values) { return false; }
 
-bool ShowOperator::exec() {
+bool ShowOperator::exec(std::vector<Expr*>* values) {
   ShowPlan* show_plan = static_cast<ShowPlan*>(plan_);
   if (show_plan->type == kShowTables) {
     std::vector<Table*> tables;
@@ -233,12 +233,23 @@ bool ShowOperator::exec() {
   return false;
 }
 
-bool SelectOperator::exec() { return false; }
+bool SelectOperator::exec(std::vector<Expr*>* values) { return false; }
 
-bool SeqScanOperator::exec() { return false; }
+bool SeqScanOperator::exec(std::vector<Expr*>* values) {
+  ScanPlan* plan = static_cast<ScanPlan*>(plan_);
+  TableStore* table_store = plan->table->getTableStore();
+  curTuple_ = table_store->seqScan(curTuple_);
+  if (curTuple_ == nullptr) {
+    return false;
+  } else {
+    table_store->parseTuple(curTuple_, values);
+  }
 
-bool FilterOperator::exec() { return false; }
+  return false;
+}
 
-bool ProjectionOperator::exec() { return false; }
+bool FilterOperator::exec(std::vector<Expr*>* values) { return false; }
+
+bool ProjectionOperator::exec(std::vector<Expr*>* values) { return false; }
 
 }  // namespace bydb
