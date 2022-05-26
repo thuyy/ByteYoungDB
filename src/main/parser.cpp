@@ -357,6 +357,13 @@ bool Parser::checkCreateStmt(const CreateStatement* stmt) {
 }
 
 bool Parser::checkCreateTableStmt(const CreateStatement* stmt) {
+  if (stmt->schema == nullptr || stmt->tableName == nullptr) {
+    std::cout << "[BYDB-Error]: Schema and table name should be specified in "
+                 "the query, like 'db.t'."
+              << std::endl;
+    return true;
+  }
+
   // Check if the table already existed.
   if (g_meta_data.getTable(stmt->schema, stmt->tableName) != nullptr &&
       !stmt->ifNotExists) {
